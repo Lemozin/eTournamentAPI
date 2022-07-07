@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using eTournamentAPI.Data.Cart;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Data.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,7 @@ namespace eTournamentAPI.Controllers
             _ordersService = ordersService;
         }
 
+        [Authorize]
         [HttpGet]
         [Route("get_orders")]
         public async Task<IActionResult> Index()
@@ -34,6 +36,7 @@ namespace eTournamentAPI.Controllers
             return Ok(orders);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("get_shopping_cart")]
         public IActionResult ShoppingCart()
@@ -50,6 +53,7 @@ namespace eTournamentAPI.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPost]
         [Route("add_iterms_to_shopping_cart")]
         public async Task<IActionResult> AddItemToShoppingCart(int id)
@@ -60,6 +64,7 @@ namespace eTournamentAPI.Controllers
             return Ok("ItemAddSuccess");
         }
 
+        [Authorize]
         [HttpDelete]
         [Route("remove_iterms_from_shopping_cart")]
         public async Task<IActionResult> RemoveItemFromShoppingCart(int id)
@@ -70,6 +75,7 @@ namespace eTournamentAPI.Controllers
             return Ok("ItemRemoveSuccess");
         }
 
+        [Authorize]
         [HttpPost]
         [Route("complete_order")]
         public async Task<IActionResult> CompleteOrder()

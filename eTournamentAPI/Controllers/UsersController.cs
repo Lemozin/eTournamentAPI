@@ -21,6 +21,7 @@ namespace eTournamentAPI.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("get_all_coaches")]
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var allCoaches = await _service.GetAllAsync();
@@ -31,6 +32,7 @@ namespace eTournamentAPI.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("get_coach_details")]
+        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             var coachDetails = await _service.GetByIdAsync(id);
@@ -40,6 +42,7 @@ namespace eTournamentAPI.Controllers
 
         [HttpPost]
         [Route("create_coach")]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("ProfilePictureURL,FullName,Bio")] Coach coach)
         {
             if (!ModelState.IsValid) return Ok(coach);
@@ -50,6 +53,7 @@ namespace eTournamentAPI.Controllers
 
         [HttpPost]
         [Route("edit_coach")]
+        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ProfilePictureURL,FullName,Bio")] Coach coach)
         {
             if (!ModelState.IsValid) return Ok(coach);
@@ -66,6 +70,7 @@ namespace eTournamentAPI.Controllers
         [HttpDelete]
         [ActionName("Delete")]
         [Route("delete_coach")]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var coachDetails = await _service.GetByIdAsync(id);

@@ -84,10 +84,6 @@ namespace eTournament
                     "default",
                     "{controller=Matches}/{action=Index}/{id?}");
             });
-
-            //Seed database
-            AppDbInitializer.Seed(app);
-            AppDbInitializer.SeedUsersAndRolesAsync(app).Wait();
         }
     }
 }

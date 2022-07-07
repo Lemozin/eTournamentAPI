@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
 using eTournament.Data.Static;
 using eTournament.Data.ViewModels;
@@ -40,6 +42,10 @@ namespace eTournament.Controllers
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
                 matches = JsonConvert.DeserializeObject<IEnumerable<Match>>(result);
             }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
 
             return View(matches);
         }
@@ -47,26 +53,53 @@ namespace eTournament.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Filter(string searchString)
         {
-            var allMatches = await _service.GetAllAsync(n => n.Team);
+            IEnumerable<Match> matches = new List<Match>();
+            client = _api.Initial();
+            var requestString = new RequestModel();
+            requestString.RequestId = 0;
+            requestString.RequestString = searchString;
+            var json = JsonConvert.SerializeObject(requestString);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            if (!string.IsNullOrEmpty(searchString))
+            responseMessage = await client.PostAsync("api/Matches/get_match_by_filter", data);
+
+            if (responseMessage.IsSuccessStatusCode)
             {
-                var filteredResultNew = allMatches.Where(n =>
-                    string.Equals(n.Name, searchString, StringComparison.CurrentCultureIgnoreCase) ||
-                    string.Equals(n.Description, searchString, StringComparison.CurrentCultureIgnoreCase)).ToList();
-
-                return View("Index", filteredResultNew);
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                matches = JsonConvert.DeserializeObject<IEnumerable<Match>>(result);
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
             }
 
-            return View("Index", allMatches);
+            return View("Index", matches);
         }
 
         //GET: Matches/Details/1
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
-            var matchDetail = await _service.GetMatchByIdAsync(id);
-            return View(matchDetail);
+            Match matchDetails = new Match();
+            var requestId = new RequestModel();
+            requestId.RequestId = id;
+            requestId.RequestString = "";
+            client = _api.Initial();
+            var json = JsonConvert.SerializeObject(requestId);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            responseMessage = await client.PostAsync("api/Matches/get_match_details_id", data);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                matchDetails = JsonConvert.DeserializeObject<Match>(result);
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(matchDetails);
         }
 
         //GET: Matches/Create
