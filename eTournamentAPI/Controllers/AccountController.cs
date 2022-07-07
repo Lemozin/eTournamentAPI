@@ -27,7 +27,7 @@ namespace eTournamentAPI.Controllers
         }
 
         [HttpGet]
-        [Route("get_users")]
+        [Route("list_login_users")]
         public async Task<IActionResult> Users()
         {
             var users = await _context.Users.ToListAsync();
@@ -49,10 +49,11 @@ namespace eTournamentAPI.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
                     if (result.Succeeded) return Ok(result);
                 }
-                return BadRequest(loginVM);
+
+                return Ok(loginVM);
             }
 
-            return BadRequest(loginVM);
+            return Ok(loginVM);
         }
 
         [HttpPost]
@@ -64,7 +65,7 @@ namespace eTournamentAPI.Controllers
             var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
             if (user != null)
             {
-                return BadRequest(registerVM);
+                return Ok(registerVM);
             }
 
             var newUser = new ApplicationUser
@@ -79,14 +80,6 @@ namespace eTournamentAPI.Controllers
                 await _userManager.AddToRoleAsync(newUser, UserRoles.User);
 
             return Ok("RegisterCompleted");
-        }
-
-        [HttpPost]
-        [Route("log_out")]
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return Ok("LogoutSuccess");
         }
     }
 }
