@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eTournamentAPI", "eTournamentAPI\eTournamentAPI.csproj", "{386853D2-78B4-4032-910E-063B7710EA76}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "eTournament", "eTournament\eTournament.csproj", "{0E930AF7-C919-4A5F-82F5-6B7F5E84325E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{386853D2-78B4-4032-910E-063B7710EA76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{386853D2-78B4-4032-910E-063B7710EA76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{386853D2-78B4-4032-910E-063B7710EA76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E930AF7-C919-4A5F-82F5-6B7F5E84325E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E930AF7-C919-4A5F-82F5-6B7F5E84325E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E930AF7-C919-4A5F-82F5-6B7F5E84325E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E930AF7-C919-4A5F-82F5-6B7F5E84325E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

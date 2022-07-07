@@ -1,18 +1,15 @@
 ﻿using System.Threading.Tasks;
-using eTournamentAPI.Data;
-using eTournamentAPI.Data.Static;
-using eTournamentAPI.Data.ViewModels;
-using eTournamentAPI.Models;
-using Microsoft.AspNetCore.Http;
+using eTournament.Data;
+using eTournament.Data.Static;
+using eTournament.Data.ViewModels;
+using eTournament.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace eTournamentAPI.Controllers
+namespace eTournament.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    public class AccountController : Controller
     {
         private readonly AppDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -26,19 +23,23 @@ namespace eTournamentAPI.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        [Route("get_users")]
+
         public async Task<IActionResult> Users()
         {
             var users = await _context.Users.ToListAsync();
-            return Ok(users);
+            return View(users);
+        }
+
+
+        public IActionResult Login()
+        {
+            return View(new LoginVM());
         }
 
         [HttpPost]
-        [Route("login")]
         public async Task<IActionResult> Login(LoginVM loginVM)
         {
-            if (!ModelState.IsValid) return BadRequest(loginVM);
+            if (!ModelState.IsValid) return View(loginVM);
 
             var user = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
             if (user != null)
@@ -47,24 +48,33 @@ namespace eTournamentAPI.Controllers
                 if (passwordCheck)
                 {
                     var result = await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
-                    if (result.Succeeded) return Ok(result);
+                    if (result.Succeeded) return RedirectToAction("Index", "Matches");
                 }
-                return BadRequest(loginVM);
+
+                TempData["Error"] = "Wrong credentials. Please, try again!";
+                return View(loginVM);
             }
 
-            return BadRequest(loginVM);
+            TempData["Error"] = "Wrong credentials. Please, try again!";
+            return View(loginVM);
+        }
+
+
+        public IActionResult Register()
+        {
+            return View(new RegisterVM());
         }
 
         [HttpPost]
-        [Route("register_user")]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
-            if (!ModelState.IsValid) return BadRequest(registerVM);
+            if (!ModelState.IsValid) return View(registerVM);
 
             var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
             if (user != null)
             {
-                return BadRequest(registerVM);
+                TempData["Error"] = "This email address is already in use";
+                return View(registerVM);
             }
 
             var newUser = new ApplicationUser
@@ -78,15 +88,19 @@ namespace eTournamentAPI.Controllers
             if (newUserResponse.Succeeded)
                 await _userManager.AddToRoleAsync(newUser, UserRoles.User);
 
-            return Ok("RegisterCompleted");
+            return View("RegisterCompleted");
         }
 
         [HttpPost]
-        [Route("log_out")]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return Ok("LogoutSuccess");
+            return RedirectToAction("Index", "Matches");
+        }
+
+        public IActionResult AccessDenied(string ReturnUrl)
+        {
+            return View();
         }
     }
 }

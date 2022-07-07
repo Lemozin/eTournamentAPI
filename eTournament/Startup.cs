@@ -1,20 +1,18 @@
-using System;
-using eTournamentAPI.Data;
-using eTournamentAPI.Data.Cart;
-using eTournamentAPI.Data.Services;
-using eTournamentAPI.Models;
+﻿using eTournament.Data;
+using eTournament.Data.Cart;
+using eTournament.Data.Services;
+using eTournament.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Microsoft.EntityFrameworkCore;
 
-namespace eTournamentAPI
+namespace eTournament
 {
     public class Startup
     {
@@ -44,54 +42,48 @@ namespace eTournamentAPI
 
             //Authentication and authorization
             services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+            services.AddMemoryCache();
+            services.AddSession();
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             });
 
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "eTournamentAPI", 
-                    Version = "v1",
-                    Description = "Basic e-commerce web api site",
-                    Contact = new OpenApiContact()
-                    {
-                        Name = "Leonard Masina",
-                        Email = "molemo.masina@gmail.com",
-                        Url = new Uri("https://github.com/Lemozin/eTournamentAPI/tree/master/eTournamentAPI")
-                    }
-                });
-            });
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var url = Configuration.GetValue<string>("Base:BaseUrl");
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Basic e-commerce web api site"));
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
             }
 
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint(url + "/swagger/v1/swagger.json", "Basic e-commerce web api site");
-            });
-
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
 
             //Authentication & Authorization
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    "default",
+                    "{controller=Matches}/{action=Index}/{id?}");
+            });
 
             //Seed database
             AppDbInitializer.Seed(app);
