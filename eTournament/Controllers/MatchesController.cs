@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using eTournament.Data.Services;
 using eTournament.Data.Static;
 using eTournament.Data.ViewModels;
+using eTournament.Helpers;
+using eTournament.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 
 namespace eTournament.Controllers
 {
@@ -14,6 +19,9 @@ namespace eTournament.Controllers
     public class MatchesController : Controller
     {
         private readonly IMatchService _service;
+        private TournamentAPI _api = new();
+        private HttpClient client = new();
+        private HttpResponseMessage responseMessage = new();
 
         public MatchesController(IMatchService service)
         {
@@ -23,8 +31,17 @@ namespace eTournament.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var allMatches = await _service.GetAllAsync(n => n.Team);
-            return View(allMatches);
+            IEnumerable<Match> matches = new List<Match>();
+            client = _api.Initial();
+            responseMessage = await client.GetAsync("api/Matches/get_all_matches");
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                matches = JsonConvert.DeserializeObject<IEnumerable<Match>>(result);
+            }
+
+            return View(matches);
         }
 
         [AllowAnonymous]

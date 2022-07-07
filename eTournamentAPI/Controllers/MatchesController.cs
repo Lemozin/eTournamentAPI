@@ -23,36 +23,66 @@ namespace eTournamentAPI.Controllers
             _service = service;
         }
 
-        [HttpPost]
-        [Route("create")]
-        public async Task<IActionResult> Create(NewMatchVM match)
+        [HttpGet]
+        [Route("get_all_matches")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
         {
-            if (!ModelState.IsValid)
-            {
-                var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+            var allMatches = await _service.GetAllAsync(n => n.Team);
+            return Ok(allMatches);
+        }
 
-                return Ok(match);
+        [HttpGet]
+        [Route("get_match_by_filter")]
+        public async Task<IActionResult> Filter(string searchString)
+        {
+            var allMatches = await _service.GetAllAsync(n => n.Team);
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                var filteredResultNew = allMatches.Where(n =>
+                    string.Equals(n.Name, searchString, StringComparison.CurrentCultureIgnoreCase) ||
+                    string.Equals(n.Description, searchString, StringComparison.CurrentCultureIgnoreCase)).ToList();
+
+                return Ok(filteredResultNew);
             }
 
-            await _service.AddNewMatchAsync(match);
-            return Ok(nameof(Index));
+            return Ok(allMatches);
+        }
+
+        [HttpGet]
+        [Route("get_match_details_id")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var matchDetail = await _service.GetMatchByIdAsync(id);
+            return Ok(matchDetail);
+        }
+
+        [HttpGet]
+        [Route("get_match_dropdown_values")]
+        public async Task<IActionResult> GetNewMatchDropdownsValues()
+        {
+            var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+
+            return Ok(matchDropdownsData);
         }
 
         [HttpPost]
-        [Route("edit")]
+        [Route("create_match")]
+        public async Task<IActionResult> Create(NewMatchVM match)
+        {
+            await _service.AddNewMatchAsync(match);
+            return Ok("MatchCreateSuccess");
+        }
+
+        [HttpPost]
+        [Route("edit_match")]
         public async Task<IActionResult> Edit(int id, NewMatchVM match)
         {
             if (id != match.Id) return BadRequest("NotFound");
 
-            if (!ModelState.IsValid)
-            {
-                var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
-
-                return Ok(match);
-            }
-
             await _service.UpdateMatchAsync(match);
-            return Ok(nameof(Index));
+            return Ok("MatchUpdateSuccess");
         }
     }
 }
