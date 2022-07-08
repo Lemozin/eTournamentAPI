@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eTournamentAPI.Controllers
 {
+    /// <summary>
+    /// Users controller responsible for adding order to cart, removing order from cart and listing coaches
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -18,21 +21,30 @@ namespace eTournamentAPI.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
+        /// <summary>
+        /// Gets list of coaches
+        /// </summary>
+        /// <returns>
+        /// Returns list of coaches
+        /// </returns>
         [HttpGet]
         [Route("get_all_coaches")]
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             var allCoaches = await _service.GetAllAsync();
             return Ok(allCoaches);
         }
 
+        /// <summary>
+        /// Gets details of a coach by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns coach details if success and not found if not success 
+        /// </returns>
         //GET: Coaches/details/1
-        [AllowAnonymous]
         [HttpGet]
         [Route("get_coach_details")]
-        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             var coachDetails = await _service.GetByIdAsync(id);
@@ -40,9 +52,15 @@ namespace eTournamentAPI.Controllers
             return Ok(coachDetails);
         }
 
+        /// <summary>
+        /// Creates a coach
+        /// </summary>
+        /// <param name="coach"></param>
+        /// <returns>
+        /// Returns "CoachCreateSuccess" if created successfully
+        /// </returns>
         [HttpPost]
         [Route("create_coach")]
-        [Authorize]
         public async Task<IActionResult> Create([Bind("ProfilePictureURL,FullName,Bio")] Coach coach)
         {
             if (!ModelState.IsValid) return Ok(coach);
@@ -51,9 +69,16 @@ namespace eTournamentAPI.Controllers
             return Ok("CoachCreateSuccess");
         }
 
+        /// <summary>
+        /// Edits a coach by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="coach"></param>
+        /// <returns>
+        /// Returns "CoachEditSuccess" if success
+        /// </returns>
         [HttpPost]
         [Route("edit_coach")]
-        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ProfilePictureURL,FullName,Bio")] Coach coach)
         {
             if (!ModelState.IsValid) return Ok(coach);
@@ -67,10 +92,16 @@ namespace eTournamentAPI.Controllers
             return Ok(coach);
         }
 
+        /// <summary>
+        /// Removes a coach from the db by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns "CoachDeleteSuccess" if removed successfully
+        /// </returns>
         [HttpDelete]
         [ActionName("Delete")]
         [Route("delete_coach")]
-        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var coachDetails = await _service.GetByIdAsync(id);
