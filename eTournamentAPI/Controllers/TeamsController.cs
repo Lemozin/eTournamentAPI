@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eTournamentAPI.Controllers
 {
+    /// <summary>
+    /// Player controller which is responsible for creating/updating/removing a team
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class TeamsController : ControllerBase
@@ -18,6 +21,12 @@ namespace eTournamentAPI.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Gets list of registered teams
+        /// </summary>
+        /// <returns>
+        /// Returns list of teams
+        /// </returns>
         [AllowAnonymous]
         [HttpGet]
         [Route("get_all_teams")]
@@ -27,6 +36,13 @@ namespace eTournamentAPI.Controllers
             return Ok(allTeamss);
         }
 
+        /// <summary>
+        /// Creates a team by supplying a Logo(image url),Name,Description
+        /// </summary>
+        /// <param name="team"></param>
+        /// <returns>
+        /// Returns "TeamCreateSuccess" if created successfully 
+        /// </returns>
         [HttpPost]
         [Route("create_team")]
         public async Task<IActionResult> Create([Bind("Logo,Name,Description")] Team team)
@@ -36,6 +52,13 @@ namespace eTournamentAPI.Controllers
             return Ok("TeamCreateSuccess");
         }
 
+        /// <summary>
+        /// Gets details of a team by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns filtered team details
+        /// </returns>
         //Get: Teams/Details/1
         [AllowAnonymous]
         [HttpGet]
@@ -47,6 +70,14 @@ namespace eTournamentAPI.Controllers
             return Ok(teamDetails);
         }
 
+        /// <summary>
+        /// Edits a team by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="team"></param>
+        /// <returns>
+        /// Returns "TeamEditSuccess" if updated successfully
+        /// </returns>
         [HttpPost]
         [Route("edit_team")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Logo,Name,Description")] Team team)
@@ -56,6 +87,13 @@ namespace eTournamentAPI.Controllers
             return Ok("TeamEditSuccess");
         }
 
+        /// <summary>
+        /// Deletes a team by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns "TeamDeleteSuccess" if deleted successfully
+        /// </returns>
         [HttpDelete]
         [ActionName("Delete")]
         [Route("delete_team")]
