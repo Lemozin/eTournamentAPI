@@ -73,7 +73,7 @@ namespace eTournamentAPI.Controllers
         /// Gets shopping cart total
         /// </summary>
         /// <returns>
-        /// Ret
+        /// Returns shopping cart total
         /// </returns>
         [HttpGet]
         [Route("get_shopping_cart_total")]
