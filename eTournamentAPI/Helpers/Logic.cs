@@ -2,6 +2,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using eTournamentAPI.Data.Cart;
+using eTournamentAPI.Data.ViewModels;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +35,20 @@ namespace eTournamentAPI.Helpers
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public ShoppingCartVM ShoppingCartlIST(ShoppingCart shoppingCart)
+        {
+            var items = shoppingCart.GetShoppingCartItems();
+            shoppingCart.ShoppingCartItems = items;
+
+            var response = new ShoppingCartVM
+            {
+                ShoppingCart = shoppingCart,
+                ShoppingCartTotal = shoppingCart.GetShoppingCartTotal()
+            };
+
+            return response;
         }
     }
 }

@@ -27,7 +27,7 @@ namespace eTournamentAPI
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, username)
+                    new Claim(ClaimTypes.Email, username)
                 }),
                 Expires = DateTime.Now.AddHours(1),
                 SigningCredentials = 

@@ -68,7 +68,7 @@ namespace eTournamentAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key))
                 };
             });
-
+            services.AddSession();
             services.AddSingleton<IJwtAuthenticationManager>(new JwtAuthenticationManager(key));
 
             services.AddMvc();
@@ -112,7 +112,7 @@ namespace eTournamentAPI
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             //Authentication & Authorization
             app.UseAuthentication();
             app.UseAuthorization();
