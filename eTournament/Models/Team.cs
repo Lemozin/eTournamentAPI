@@ -6,9 +6,6 @@ namespace eTournament.Models
 {
     public class Team : IEntityBase
     {
-        [Key]
-        public int Id { get; set; }
-
         [Display(Name = "Team Logo")]
         [Required(ErrorMessage = "Team logo is required")]
         public string Logo { get; set; }
@@ -23,5 +20,7 @@ namespace eTournament.Models
 
         //Relationships
         public List<Match> Matches { get; set; }
+
+        [Key] public int Id { get; set; }
     }
 }

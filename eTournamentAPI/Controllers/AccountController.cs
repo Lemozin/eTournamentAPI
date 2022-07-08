@@ -4,15 +4,18 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using eTournamentAPI.Data;
+using eTournamentAPI.Data.RequestReturnModels;
 using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Static;
 using eTournamentAPI.Data.ViewModels;
+using eTournamentAPI.Helpers;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace eTournamentAPI.Controllers
 {
@@ -23,17 +26,17 @@ namespace eTournamentAPI.Controllers
         private readonly AppDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private IConfiguration _config;
+        private readonly IJwtAuthenticationManager _jwtAuthenticationManager;
         public AccountController(
             UserManager<ApplicationUser> userManager, 
             SignInManager<ApplicationUser> signInManager,
             AppDbContext context,
-            IConfiguration config)
+            IJwtAuthenticationManager jwtAuthenticationManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
-            _config = config;
+            _jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
         [HttpGet]
@@ -45,9 +48,10 @@ namespace eTournamentAPI.Controllers
         }
 
         [HttpPost]
-        [Route("login")]
+        [Route("get_authorization_token")]
         public async Task<IActionResult> Login(LoginVM loginVM)
         {
+            var responseString = new ReturnString();
             var user = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
             if (user != null)
             {
@@ -57,37 +61,18 @@ namespace eTournamentAPI.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
                     if (result.Succeeded)
                     {
-                        var token = Generate(user);
-                        return Ok(result);
+                        var token = _jwtAuthenticationManager.Authenticate(loginVM.EmailAddress);
+                        responseString.ReturnMessage = token;
+                        return Ok(responseString);
                     }
+
+                    return Unauthorized();
                 }
 
                 return Ok(loginVM);
             }
-            else
-            {
-                return NotFound("User not found");
-            }
-        }
 
-        private string Generate(ApplicationUser user)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-            };
-
-            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
-                claims,
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return NotFound();
         }
 
         [HttpPost]

@@ -9,9 +9,6 @@ namespace eTournament.Models
 {
     public class Match : IEntityBase
     {
-        [Key]
-        public int Id { get; set; }
-
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
@@ -25,12 +22,14 @@ namespace eTournament.Models
 
         //Team
         public int TeamId { get; set; }
-        [ForeignKey("TeamId")]
-        public Team Team { get; set; }
+
+        [ForeignKey("TeamId")] public Team Team { get; set; }
 
         //Coach
         public int CoachId { get; set; }
-        [ForeignKey("CoachId")]
-        public Coach Coach { get; set; }
+
+        [ForeignKey("CoachId")] public Coach Coach { get; set; }
+
+        [Key] public int Id { get; set; }
     }
 }

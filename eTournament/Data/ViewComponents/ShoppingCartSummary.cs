@@ -1,4 +1,5 @@
-﻿using eTournament.Data.Cart;
+﻿using System;
+using eTournament.Data.Cart;
 using Microsoft.AspNetCore.Mvc;
 
 namespace eTournament.Data.ViewComponents
@@ -14,9 +15,15 @@ namespace eTournament.Data.ViewComponents
 
         public IViewComponentResult Invoke()
         {
-            var items = _shoppingCart.GetShoppingCartItems();
+            try
+            {
+                var items = _shoppingCart.GetShoppingCartItems();
 
-            return View(items.Count);
+                return View(items.Count);
+            }
+            catch (Exception e) { }
+
+            return View(0);
         }
     }
 }

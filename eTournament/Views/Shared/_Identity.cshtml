@@ -1,6 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Mvc.TagHelpers
-@inject UserManager<ApplicationUser> UserManager; 
+﻿@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager; 
 
 @if (!User.Identity.IsAuthenticated)
 {
@@ -15,7 +13,8 @@
 }
 else
 {
-@*User profile section*@
+
+    @*User profile section*@
     <div class="dropdown">
         <button class="btn btn-outline-success dropdown-toggle" type="button" id="profile-btn" data-toggle="dropdown"
                 aria-expanded="false">

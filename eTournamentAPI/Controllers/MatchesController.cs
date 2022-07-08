@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Data.Static;
 using eTournamentAPI.Data.ViewModels;
@@ -24,7 +25,6 @@ namespace eTournamentAPI.Controllers
             _service = service;
         }
 
-        [Authorize]
         [HttpGet]
         [Route("get_all_matches")]
         [AllowAnonymous]
@@ -34,11 +34,10 @@ namespace eTournamentAPI.Controllers
             return Ok(allMatches);
         }
 
-        [Authorize]
         [HttpPost]
         [Route("get_match_by_filter")]
         [AllowAnonymous]
-        public async Task<IActionResult> Filter(RequestModel searchString)
+        public async Task<IActionResult> Filter(RequestStringModel searchString)
         {
             var allMatches = await _service.GetAllAsync(n => n.Team);
 
@@ -54,17 +53,15 @@ namespace eTournamentAPI.Controllers
             return Ok(allMatches);
         }
 
-        [Authorize]
         [HttpPost]
         [Route("get_match_details_id")]
         [AllowAnonymous]
-        public async Task<IActionResult> Details(RequestModel id)
+        public async Task<IActionResult> Details(RequestIdModel id)
         {
             var matchDetail = await _service.GetMatchByIdAsync(id.RequestId);
             return Ok(matchDetail);
         }
 
-        [Authorize]
         [HttpGet]
         [Route("get_match_dropdown_values")]
         public async Task<IActionResult> GetNewMatchDropdownsValues()
@@ -74,16 +71,16 @@ namespace eTournamentAPI.Controllers
             return Ok(matchDropdownsData);
         }
 
-        [Authorize]
         [HttpPost]
         [Route("create_match")]
         public async Task<IActionResult> Create(NewMatchVM match)
         {
+            var response = new ReturnString();
             await _service.AddNewMatchAsync(match);
-            return Ok("MatchCreateSuccess");
+            response.ReturnMessage = "MatchCreateSuccess";
+            return Ok(response);
         }
 
-        [Authorize]
         [HttpPost]
         [Route("edit_match")]
         public async Task<IActionResult> Edit(int id, NewMatchVM match)

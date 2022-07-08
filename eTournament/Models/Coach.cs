@@ -6,9 +6,6 @@ namespace eTournament.Models
 {
     public class Coach : IEntityBase
     {
-        [Key]
-        public int Id { get; set; }
-
         [Display(Name = "Profile Picture")]
         [Required(ErrorMessage = "Profile Picture is required")]
         public string ProfilePictureURL { get; set; }
@@ -24,5 +21,7 @@ namespace eTournament.Models
 
         //Relationships
         public List<Match> Matches { get; set; }
+
+        [Key] public int Id { get; set; }
     }
 }

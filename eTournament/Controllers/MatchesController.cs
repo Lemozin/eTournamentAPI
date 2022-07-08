@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -20,9 +19,12 @@ namespace eTournament.Controllers
     [Authorize(Roles = UserRoles.Admin)]
     public class MatchesController : Controller
     {
+        private readonly TournamentAPI _api = new();
+        private readonly Logic _logic = new();
         private readonly IMatchService _service;
-        private TournamentAPI _api = new();
         private HttpClient client = new();
+        private StringContent data;
+        private string json;
         private HttpResponseMessage responseMessage = new();
 
         public MatchesController(IMatchService service)
@@ -34,8 +36,12 @@ namespace eTournament.Controllers
         public async Task<IActionResult> Index()
         {
             IEnumerable<Match> matches = new List<Match>();
-            client = _api.Initial();
-            responseMessage = await client.GetAsync("api/Matches/get_all_matches");
+
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                false,
+                true,
+                "api/Matches/get_all_matches",
+                null);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -55,13 +61,14 @@ namespace eTournament.Controllers
         {
             IEnumerable<Match> matches = new List<Match>();
             client = _api.Initial();
-            var requestString = new RequestModel();
-            requestString.RequestId = 0;
+            var requestString = new RequestStringModel();
             requestString.RequestString = searchString;
-            var json = JsonConvert.SerializeObject(requestString);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            responseMessage = await client.PostAsync("api/Matches/get_match_by_filter", data);
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                false,
+                false,
+                "api/Matches/get_match_by_filter",
+                matches);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -80,14 +87,15 @@ namespace eTournament.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
-            Match matchDetails = new Match();
-            var requestId = new RequestModel();
+            var matchDetails = new Match();
+            var requestId = new RequestIdModel();
             requestId.RequestId = id;
-            requestId.RequestString = "";
-            client = _api.Initial();
-            var json = JsonConvert.SerializeObject(requestId);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
-            responseMessage = await client.PostAsync("api/Matches/get_match_details_id", data);
+
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                false,
+                false,
+                "api/Matches/get_match_details_id",
+                requestId);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -117,21 +125,44 @@ namespace eTournament.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(NewMatchVM match)
         {
+            var newMatchDropdownsVM = new NewMatchDropdownsVM();
+            var response = new ReturnString();
             if (!ModelState.IsValid)
             {
-                var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+                var token = TempData["Token"];
 
-                ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-                ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-                ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+                responseMessage = await _logic.GetPostHttpClientAsync(
+                    true,
+                    true,
+                    "api/Matches/get_match_dropdown_values",
+                    null,
+                    token.ToString());
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    var result = responseMessage.Content.ReadAsStringAsync().Result;
+                    newMatchDropdownsVM = JsonConvert.DeserializeObject<NewMatchDropdownsVM>(result);
+                }
+
+                ViewBag.Teams = new SelectList(newMatchDropdownsVM.Teams, "Id", "Name");
+                ViewBag.Coaches = new SelectList(newMatchDropdownsVM.Coaches, "Id", "FullName");
+                ViewBag.Players = new SelectList(newMatchDropdownsVM.Players, "Id", "FullName");
 
                 return View(match);
             }
 
-            await _service.AddNewMatchAsync(match);
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                true,
+                false,
+                "api/Matches/create_match",
+                match);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                response = JsonConvert.DeserializeObject<ReturnString>(result);
+            }
+
             return RedirectToAction(nameof(Index));
         }
-
 
         //GET: Matches/Edit/1
         public async Task<IActionResult> Edit(int id)
@@ -165,20 +196,46 @@ namespace eTournament.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, NewMatchVM match)
         {
+            var newMatchDropdownsVM = new NewMatchDropdownsVM();
+            var response = new ReturnString();
+
             if (id != match.Id) return View("NotFound");
+
+            var token = TempData["Token"];
 
             if (!ModelState.IsValid)
             {
-                var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+                responseMessage = await _logic.GetPostHttpClientAsync(
+                    true,
+                    true,
+                    "api/Matches/get_match_dropdown_values",
+                    null,
+                    token.ToString());
 
-                ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-                ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-                ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    var result = responseMessage.Content.ReadAsStringAsync().Result;
+                    newMatchDropdownsVM = JsonConvert.DeserializeObject<NewMatchDropdownsVM>(result);
+                }
+
+                ViewBag.Teams = new SelectList(newMatchDropdownsVM.Teams, "Id", "Name");
+                ViewBag.Coaches = new SelectList(newMatchDropdownsVM.Coaches, "Id", "FullName");
+                ViewBag.Players = new SelectList(newMatchDropdownsVM.Players, "Id", "FullName");
 
                 return View(match);
             }
 
-            await _service.UpdateMatchAsync(match);
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                true,
+                false,
+                "api/Matches/edit_match",
+                match);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                response = JsonConvert.DeserializeObject<ReturnString>(result);
+            }
+
             return RedirectToAction(nameof(Index));
         }
     }

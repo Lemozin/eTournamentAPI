@@ -4,28 +4,29 @@ using System.Text;
 using System.Threading.Tasks;
 using eTournament.Data;
 using eTournament.Data.RequestReturnModels;
-using eTournament.Data.Static;
 using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace eTournament.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly TournamentAPI _api = new();
         private readonly AppDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private TournamentAPI _api = new();
         private HttpClient client = new();
+        private StringContent data;
+        private string json;
         private HttpResponseMessage responseMessage = new();
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+        public AccountController(
+            UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signInManager,
             AppDbContext context)
         {
             _userManager = userManager;
@@ -58,21 +59,43 @@ namespace eTournament.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM loginVM)
         {
-            var signInResult = SignInResult.Failed;
+            var token = new ReturnString();
             if (!ModelState.IsValid) return View(loginVM);
 
             client = _api.Initial();
-            var json = JsonConvert.SerializeObject(loginVM);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            json = JsonConvert.SerializeObject(loginVM);
+            data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            responseMessage = await client.PostAsync("api/Account/login", data);
+            responseMessage = await client.PostAsync("api/Account/get_authorization_token", data);
 
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
-                signInResult = JsonConvert.DeserializeObject<SignInResult>(result);
+                token = JsonConvert.DeserializeObject<ReturnString>(result);
+                TempData["Token"] = token.ReturnMessage;
 
-                return RedirectToAction("Index", "Matches");
+                if (!string.IsNullOrEmpty(token.ReturnMessage))
+                {
+                    var user = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
+                    if (user != null)
+                    {
+                        var passwordCheck = await _userManager.CheckPasswordAsync(user, loginVM.Password);
+                        if (passwordCheck)
+                        {
+                            var resultPassSign =
+                                await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
+                            if (resultPassSign.Succeeded) return RedirectToAction("Index", "Matches");
+                        }
+
+                        TempData["Error"] = "Wrong credentials. Please, try again!";
+                        return View(loginVM);
+                    }
+
+                    TempData["Error"] = "Wrong credentials. Please, try again!";
+                    return View(loginVM);
+                }
+                TempData["Error"] = "Wrong credentials. Please, try again!";
+                return View(loginVM);
             }
 
             TempData["Error"] = "Wrong credentials. Please, try again!";
@@ -93,8 +116,8 @@ namespace eTournament.Controllers
             if (!ModelState.IsValid) return View(registerVM);
 
             client = _api.Initial();
-            var json = JsonConvert.SerializeObject(registerVM);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            json = JsonConvert.SerializeObject(registerVM);
+            data = new StringContent(json, Encoding.UTF8, "application/json");
             responseMessage = await client.PostAsync("api/Account/register_user", data);
 
             if (responseMessage.IsSuccessStatusCode)
