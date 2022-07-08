@@ -12,6 +12,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eTournamentAPI.Controllers
 {
+    /// <summary>
+    /// Orders controller responsible for adding order to cart, removing order from cart and listing orders
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -27,6 +30,12 @@ namespace eTournamentAPI.Controllers
             _ordersService = ordersService;
         }
 
+        /// <summary>
+        /// Get list of orders
+        /// </summary>
+        /// <returns>
+        /// Returns list of orders
+        /// </returns>
         [HttpGet]
         [Route("get_orders")]
         public async Task<IActionResult> Index()
@@ -38,6 +47,12 @@ namespace eTournamentAPI.Controllers
             return Ok(orders);
         }
 
+        /// <summary>
+        /// Get list of shopping cart items
+        /// </summary>
+        /// <returns>
+        /// Returns an object of shopping cart to view
+        /// </returns>
         [HttpGet]
         [Route("get_shopping_cart")]
         public IActionResult ShoppingCart()
@@ -54,6 +69,12 @@ namespace eTournamentAPI.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Gets shopping cart total
+        /// </summary>
+        /// <returns>
+        /// Ret
+        /// </returns>
         [HttpGet]
         [Route("get_shopping_cart_total")]
         public IActionResult ShoppingCartTotal()
@@ -67,9 +88,16 @@ namespace eTournamentAPI.Controllers
                 ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal()
             };
 
-            return Ok(response);
+            return Ok(response.ShoppingCartTotal.ToString());
         }
 
+        /// <summary>
+        /// Add items to shopping cart by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns shopping cart if added successfully and not found if item was not found
+        /// </returns>
         [HttpPost]
         [Route("add_iterms_to_shopping_cart")]
         public async Task<IActionResult> AddItemToShoppingCart(RequestIdModel id)
@@ -87,6 +115,13 @@ namespace eTournamentAPI.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Remove item from shopping cart
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns "ItemRemoveSuccess" if removed successfully
+        /// </returns>
         [HttpDelete]
         [Route("remove_iterms_from_shopping_cart")]
         public async Task<IActionResult> RemoveItemFromShoppingCart(int id)
@@ -97,6 +132,12 @@ namespace eTournamentAPI.Controllers
             return Ok("ItemRemoveSuccess");
         }
 
+        /// <summary>
+        /// Clears item from cart
+        /// </summary>
+        /// <returns>
+        /// Returns "OrderCompleted" if cleared successfully
+        /// </returns>
         [HttpPost]
         [Route("complete_order")]
         public async Task<IActionResult> CompleteOrder()

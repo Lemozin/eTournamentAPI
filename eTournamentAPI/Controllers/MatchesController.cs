@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace eTournamentAPI.Controllers
 {
+    /// <summary>
+    /// Match controller which is responsible for creating/editing/deleting matches
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = UserRoles.Admin)]
@@ -25,6 +28,12 @@ namespace eTournamentAPI.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Get list of all matches
+        /// </summary>
+        /// <returns>
+        /// Returns list of all matches
+        /// </returns>
         [HttpGet]
         [Route("get_all_matches")]
         [AllowAnonymous]
@@ -34,6 +43,13 @@ namespace eTournamentAPI.Controllers
             return Ok(allMatches);
         }
 
+        /// <summary>
+        /// Filter each match by match name
+        /// </summary>
+        /// <param name="searchString"></param>
+        /// <returns>
+        /// Returns single filtered match
+        /// </returns>
         [HttpPost]
         [Route("get_match_by_filter")]
         [AllowAnonymous]
@@ -53,6 +69,13 @@ namespace eTournamentAPI.Controllers
             return Ok(allMatches);
         }
 
+        /// <summary>
+        /// Get details of a match
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>
+        /// Returns details of a match
+        /// </returns>
         [HttpPost]
         [Route("get_match_details_id")]
         [AllowAnonymous]
@@ -62,6 +85,12 @@ namespace eTournamentAPI.Controllers
             return Ok(matchDetail);
         }
 
+        /// <summary>
+        /// Get dropdown values (players/coaches/teams) to prepare for create function
+        /// </summary>
+        /// <returns>
+        /// Returns an object of dropdown values to prepare for create
+        /// </returns>
         [HttpGet]
         [Route("get_match_dropdown_values")]
         public async Task<IActionResult> GetNewMatchDropdownsValues()
@@ -71,6 +100,13 @@ namespace eTournamentAPI.Controllers
             return Ok(matchDropdownsData);
         }
 
+        /// <summary>
+        /// Creates a match
+        /// </summary>
+        /// <param name="match"></param>
+        /// <returns>
+        /// Returns "MatchCreateSuccess" if success
+        /// </returns>
         [HttpPost]
         [Route("create_match")]
         public async Task<IActionResult> Create(NewMatchVM match)
@@ -81,6 +117,14 @@ namespace eTournamentAPI.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// Edits a match by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="match"></param>
+        /// <returns>
+        /// Returns "MatchUpdateSuccess" is updated successfully
+        /// </returns>
         [HttpPost]
         [Route("edit_match")]
         public async Task<IActionResult> Edit(int id, NewMatchVM match)

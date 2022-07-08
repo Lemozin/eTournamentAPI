@@ -19,6 +19,9 @@ using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace eTournamentAPI.Controllers
 {
+    /// <summary>
+    /// account controller which deals with users(login,register etc)
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
@@ -39,6 +42,12 @@ namespace eTournamentAPI.Controllers
             _jwtAuthenticationManager = jwtAuthenticationManager;
         }
 
+        /// <summary>
+        /// Get list of all users
+        /// </summary>
+        /// <returns>
+        /// Returns list of registered users
+        /// </returns>
         [HttpGet]
         [Route("list_login_users")]
         public async Task<IActionResult> Users()
@@ -47,6 +56,13 @@ namespace eTournamentAPI.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Login/gets authorization token
+        /// </summary>
+        /// <param name="loginVM"></param>
+        /// <returns>
+        /// returns authorization token
+        /// </returns>
         [HttpPost]
         [Route("get_authorization_token")]
         public async Task<IActionResult> Login(LoginVM loginVM)
@@ -75,6 +91,13 @@ namespace eTournamentAPI.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Registers user to db
+        /// </summary>
+        /// <param name="registerVM"></param>
+        /// <returns>
+        /// returns success if registered successfully
+        /// </returns>
         [HttpPost]
         [Route("register_user")]
         public async Task<IActionResult> Register(RegisterVM registerVM)
