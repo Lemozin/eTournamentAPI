@@ -21,7 +21,6 @@ namespace eTournamentAPI.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("get_all_teams")]
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             var allTeamss = await _service.GetAllAsync();
@@ -30,7 +29,6 @@ namespace eTournamentAPI.Controllers
 
         [HttpPost]
         [Route("create_team")]
-        [Authorize]
         public async Task<IActionResult> Create([Bind("Logo,Name,Description")] Team team)
         {
             if (!ModelState.IsValid) return Ok(team);
@@ -42,7 +40,6 @@ namespace eTournamentAPI.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("get_team_details")]
-        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             var teamDetails = await _service.GetByIdAsync(id);
@@ -52,7 +49,6 @@ namespace eTournamentAPI.Controllers
 
         [HttpPost]
         [Route("edit_team")]
-        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Logo,Name,Description")] Team team)
         {
             if (!ModelState.IsValid) return Ok(team);
@@ -63,7 +59,6 @@ namespace eTournamentAPI.Controllers
         [HttpDelete]
         [ActionName("Delete")]
         [Route("delete_team")]
-        [Authorize]
         public async Task<IActionResult> DeleteConfirm(int id)
         {
             var teamDetails = await _service.GetByIdAsync(id);

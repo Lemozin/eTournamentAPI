@@ -18,7 +18,6 @@ namespace eTournamentAPI.Controllers
             _service = service;
         }
 
-        [Authorize]
         [HttpGet]
         [Route("get_all_players")]
         public async Task<IActionResult> Index()
@@ -27,7 +26,6 @@ namespace eTournamentAPI.Controllers
             return Ok(data);
         }
 
-        [Authorize]
         [HttpPost]
         [Route("create_player")]
         public async Task<IActionResult> Create([Bind("FullName,ProfilePictureURL,Bio")] Player player)
@@ -40,7 +38,6 @@ namespace eTournamentAPI.Controllers
         //Get: Players/Details/1
         [HttpGet]
         [Route("get_player_details")]
-        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             var playerDetails = await _service.GetByIdAsync(id);
@@ -51,7 +48,6 @@ namespace eTournamentAPI.Controllers
 
         [HttpPost]
         [Route("edit_player")]
-        [Authorize]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ProfilePictureURL,Bio")] Player player)
         {
             if (!ModelState.IsValid) return Ok(player);
@@ -62,7 +58,6 @@ namespace eTournamentAPI.Controllers
         [HttpDelete]
         [ActionName("Delete")]
         [Route("delete_player")]
-        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var playerDetails = await _service.GetByIdAsync(id);
