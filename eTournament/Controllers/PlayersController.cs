@@ -55,7 +55,7 @@ namespace eTournament.Controllers
 
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                true,
+                false,
                 false,
                 "api/Players/create_player",
                 player);
@@ -127,7 +127,7 @@ namespace eTournament.Controllers
 
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                true,
+                false,
                 false,
                 "api/Players/edit_player",
                 player);

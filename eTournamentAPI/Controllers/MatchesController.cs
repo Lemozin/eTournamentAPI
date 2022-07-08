@@ -86,21 +86,6 @@ namespace eTournamentAPI.Controllers
         }
 
         /// <summary>
-        /// Get dropdown values (players/coaches/teams) to prepare for create function
-        /// </summary>
-        /// <returns>
-        /// Returns an object of dropdown values to prepare for create
-        /// </returns>
-        [HttpGet]
-        [Route("get_match_dropdown_values")]
-        public async Task<IActionResult> GetNewMatchDropdownsValues()
-        {
-            var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
-
-            return Ok(matchDropdownsData);
-        }
-
-        /// <summary>
         /// Creates a match
         /// </summary>
         /// <param name="match"></param>

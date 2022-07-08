@@ -129,32 +129,23 @@ namespace eTournament.Controllers
             var response = new ReturnString();
             if (!ModelState.IsValid)
             {
-                var token = TempData["Token"];
+                var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
 
-                responseMessage = await _logic.GetPostHttpClientAsync(
-                    true,
-                    true,
-                    "api/Matches/get_match_dropdown_values",
-                    null,
-                    token.ToString());
-                if (responseMessage.IsSuccessStatusCode)
-                {
-                    var result = responseMessage.Content.ReadAsStringAsync().Result;
-                    newMatchDropdownsVM = JsonConvert.DeserializeObject<NewMatchDropdownsVM>(result);
-                }
-
-                ViewBag.Teams = new SelectList(newMatchDropdownsVM.Teams, "Id", "Name");
-                ViewBag.Coaches = new SelectList(newMatchDropdownsVM.Coaches, "Id", "FullName");
-                ViewBag.Players = new SelectList(newMatchDropdownsVM.Players, "Id", "FullName");
+                ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
+                ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
+                ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
 
                 return View(match);
             }
+
+            var token = TempData["Token"];
 
             responseMessage = await _logic.GetPostHttpClientAsync(
                 true,
                 false,
                 "api/Matches/create_match",
-                match);
+                match,
+                token.ToString());
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
@@ -206,7 +197,7 @@ namespace eTournament.Controllers
             if (!ModelState.IsValid)
             {
                 responseMessage = await _logic.GetPostHttpClientAsync(
-                    true,
+                    false,
                     true,
                     "api/Matches/get_match_dropdown_values",
                     null,
@@ -226,7 +217,7 @@ namespace eTournament.Controllers
             }
 
             responseMessage = await _logic.GetPostHttpClientAsync(
-                true,
+                false,
                 false,
                 "api/Matches/edit_match",
                 match);
