@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
-namespace eTournamentAPI.Models
+namespace eTournamentAPI.Models;
+
+public class ApplicationUser : IdentityUser
 {
-    public class ApplicationUser : IdentityUser
-    {
-        [Display(Name = "Full name")] public string FullName { get; set; }
-    }
+    [Display(Name = "Full name")] public string FullName { get; set; }
 }

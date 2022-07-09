@@ -1,13 +1,12 @@
-﻿namespace eTournamentAPI.Data.Enums
+﻿namespace eTournamentAPI.Data.Enums;
+
+public enum MatchCategory
 {
-    public enum MatchCategory
-    {
-        Final = 1,
-        Semifinals,
-        Quarterfinals,
-        FifthRound,
-        FourthRound,
-        ThirdRound,
-        SecondRound
-    }
+    Final = 1,
+    Semifinals,
+    Quarterfinals,
+    FifthRound,
+    FourthRound,
+    ThirdRound,
+    SecondRound
 }

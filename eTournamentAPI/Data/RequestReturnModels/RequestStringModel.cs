@@ -1,7 +1,6 @@
-﻿namespace eTournamentAPI.Data.RequestReturnModels
+﻿namespace eTournamentAPI.Data.RequestReturnModels;
+
+public class RequestStringModel
 {
-    public class RequestStringModel
-    {
-        public string RequestString { get; set; }
-    }
+    public string RequestString { get; set; }
 }

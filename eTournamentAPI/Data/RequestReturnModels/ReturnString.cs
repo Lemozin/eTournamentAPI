@@ -1,7 +1,6 @@
-﻿namespace eTournamentAPI.Data.ReturnModels
+﻿namespace eTournamentAPI.Data.ReturnModels;
+
+public class ReturnString
 {
-    public class ReturnString
-    {
-        public string ReturnMessage { get; set; }
-    }
+    public string ReturnMessage { get; set; }
 }

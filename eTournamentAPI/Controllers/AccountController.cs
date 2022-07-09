@@ -1,73 +1,70 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using eTournamentAPI.Data;
-using eTournamentAPI.Data.RequestReturnModels;
 using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Static;
 using eTournamentAPI.Data.ViewModels;
-using eTournamentAPI.Helpers;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-namespace eTournamentAPI.Controllers
+namespace eTournamentAPI.Controllers;
+
+/// <summary>
+///     account controller which deals with users(login,register etc)
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public class AccountController : ControllerBase
 {
-    /// <summary>
-    /// account controller which deals with users(login,register etc)
-    /// </summary>
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    private readonly AppDbContext _context;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IConfiguration _config;
+
+    public AccountController(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
+        AppDbContext context,
+        IConfiguration config)
     {
-        private readonly AppDbContext _context;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IJwtAuthenticationManager _jwtAuthenticationManager;
-        public AccountController(
-            UserManager<ApplicationUser> userManager, 
-            SignInManager<ApplicationUser> signInManager,
-            AppDbContext context,
-            IJwtAuthenticationManager jwtAuthenticationManager)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _context = context;
-            _jwtAuthenticationManager = jwtAuthenticationManager;
-        }
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _context = context;
+        _config = config;
+    }
 
-        /// <summary>
-        /// Get list of all users
-        /// </summary>
-        /// <returns>
-        /// Returns list of registered users
-        /// </returns>
-        [HttpGet]
-        [Route("list_login_users")]
-        public async Task<IActionResult> Users()
-        {
-            var users = await _context.Users.ToListAsync();
-            return Ok(users);
-        }
+    /// <summary>
+    ///     Get list of all users
+    /// </summary>
+    /// <returns>
+    ///     Returns list of registered users
+    /// </returns>
+    [HttpGet]
+    [Route("list_login_users")]
+    public async Task<IActionResult> Users()
+    {
+        var users = await _context.Users.ToListAsync();
+        return Ok(users);
+    }
 
-        /// <summary>
-        /// Login/gets authorization token
-        /// </summary>
-        /// <param name="loginVM"></param>
-        /// <returns>
-        /// returns authorization token
-        /// </returns>
-        [HttpPost]
-        [Route("get_authorization_token")]
-        public async Task<IActionResult> Login(LoginVM loginVM)
+    /// <summary>
+    ///     Login/gets authorization token
+    /// </summary>
+    /// <param name="loginVM"></param>
+    /// <returns>
+    ///     returns authorization token
+    /// </returns>
+    [HttpPost]
+    [Route("get_authorization_token")]
+    public async Task<IActionResult> Login(LoginVM loginVM)
+    {
+        if (!string.IsNullOrEmpty(loginVM.EmailAddress) &&
+            !string.IsNullOrEmpty(loginVM.Password))
         {
-            var responseString = new ReturnString();
             var user = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
             if (user != null)
             {
@@ -77,52 +74,81 @@ namespace eTournamentAPI.Controllers
                     var result = await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
                     if (result.Succeeded)
                     {
-                        var token = _jwtAuthenticationManager.Authenticate(loginVM.EmailAddress);
-                        responseString.ReturnMessage = token;
-                        return Ok(responseString);
+                        var loggedInUser = _userManager.FindByEmailAsync(loginVM.EmailAddress);
+
+                        var fullNames = loggedInUser.Result.FullName.Split(' ');
+                        var firstName = fullNames[0];
+                        var surname = fullNames[1];
+
+                        var claims = new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, loggedInUser.Result.UserName),
+                            new Claim(ClaimTypes.Email, loggedInUser.Result.Email),
+                            new Claim(ClaimTypes.GivenName, firstName),
+                            new Claim(ClaimTypes.Surname, surname),
+                            new Claim(ClaimTypes.Role, loggedInUser.Result.NormalizedUserName)
+                        };
+
+                        var token = new JwtSecurityToken
+                        (
+                            _config["Jwt:Issuer"],
+                            _config["Jwt:Audience"],
+                            claims,
+                            expires: DateTime.UtcNow.AddMinutes(30),
+                            notBefore: DateTime.UtcNow,
+                            signingCredentials: new SigningCredentials(
+                                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
+                                SecurityAlgorithms.HmacSha256)
+                        );
+
+                        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+                        return Ok(tokenString);
                     }
 
-                    return Unauthorized();
+                    return NotFound();
                 }
 
-                return Ok(loginVM);
+                return NotFound();
             }
 
             return NotFound();
         }
 
-        /// <summary>
-        /// Registers user to db
-        /// </summary>
-        /// <param name="registerVM"></param>
-        /// <returns>
-        /// returns success if registered successfully
-        /// </returns>
-        [HttpPost]
-        [Route("register_user")]
-        public async Task<IActionResult> Register(RegisterVM registerVM)
+        return BadRequest("Invalid user credentials");
+    }
+
+    /// <summary>
+    ///     Registers user to db
+    /// </summary>
+    /// <param name="registerVM"></param>
+    /// <returns>
+    ///     returns success if registered successfully
+    /// </returns>
+    [HttpPost]
+    [Route("register_user")]
+    public async Task<IActionResult> Register(RegisterVM registerVM)
+    {
+        var returnMsg = new ReturnString();
+        var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
+        if (user != null)
         {
-            var returnMsg = new ReturnString();
-            var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
-            if (user != null)
-            {
-                returnMsg.ReturnMessage = "This email address is already in use";
-                return Ok(returnMsg);
-            }
-
-            var newUser = new ApplicationUser
-            {
-                FullName = registerVM.FullName,
-                Email = registerVM.EmailAddress,
-                UserName = registerVM.EmailAddress
-            };
-            var newUserResponse = await _userManager.CreateAsync(newUser, registerVM.Password);
-
-            if (newUserResponse.Succeeded)
-                await _userManager.AddToRoleAsync(newUser, UserRoles.User);
-
-            returnMsg.ReturnMessage = "RegisterCompleted";
+            returnMsg.ReturnMessage = "This email address is already in use";
             return Ok(returnMsg);
         }
+
+        var newUser = new ApplicationUser
+        {
+            FullName = registerVM.FullName,
+            Email = registerVM.EmailAddress,
+            UserName = registerVM.EmailAddress
+        };
+        var newUserResponse = await _userManager.CreateAsync(newUser, registerVM.Password);
+
+        if (newUserResponse.Succeeded)
+            await _userManager.AddToRoleAsync(newUser, UserRoles.User);
+
+        returnMsg.ReturnMessage = "RegisterCompleted";
+        return Ok(returnMsg);
     }
 }

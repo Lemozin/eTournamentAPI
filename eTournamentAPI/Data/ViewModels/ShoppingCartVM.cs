@@ -1,10 +1,9 @@
 ﻿using eTournamentAPI.Data.Cart;
 
-namespace eTournamentAPI.Data.ViewModels
+namespace eTournamentAPI.Data.ViewModels;
+
+public class ShoppingCartVM
 {
-    public class ShoppingCartVM
-    {
-        public ShoppingCart ShoppingCart { get; set; }
-        public double ShoppingCartTotal { get; set; }
-    }
+    public ShoppingCart ShoppingCart { get; set; }
+    public double ShoppingCartTotal { get; set; }
 }
