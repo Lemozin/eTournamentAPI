@@ -20,10 +20,10 @@ namespace eTournamentAPI.Controllers;
 [Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
+    private readonly IConfiguration _config;
     private readonly AppDbContext _context;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _config;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
@@ -153,14 +153,9 @@ public class AccountController : ControllerBase
             returnMsg.ReturnMessage = "RegisterCompleted";
             return Ok(returnMsg);
         }
-        else
-        {
-            var errorMsg = string.Empty;
-            foreach (var error in newUserResponse.Errors)
-            {
-                errorMsg = error.Description;
-            }
-            return BadRequest(errorMsg);
-        }
+
+        var errorMsg = string.Empty;
+        foreach (var error in newUserResponse.Errors) errorMsg = error.Description;
+        return BadRequest(errorMsg);
     }
 }

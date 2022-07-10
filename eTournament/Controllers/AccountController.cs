@@ -137,7 +137,13 @@ namespace eTournament.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            HttpContext.Session.SetString("Token", "");
+
+            HttpContext.Session.SetString("LoggedOut", "True");
+
+            TempData["Username"] = null;
+            TempData["Role"] = null;
+
             return RedirectToAction("Index", "Matches");
         }
 

@@ -44,7 +44,7 @@ public class UsersController : ControllerBase
     ///     Returns coach details if success and not found if not success
     /// </returns>
     //GET: Coaches/details/1
-    [HttpGet]
+    [HttpPost]
     [Route("get_coach_details")]
     public async Task<IActionResult> Details(RequestIdModel request)
     {

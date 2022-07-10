@@ -38,7 +38,8 @@ public class ShoppingCart
             {
                 ShoppingCartId = ShoppingCartId,
                 Match = match,
-                Amount = 1
+                Amount = 1,
+                Status = 0
             };
 
             _context.ShoppingCartItems.Add(shoppingCartItem);
@@ -55,14 +56,19 @@ public class ShoppingCart
     {
         var shoppingCartItem =
             _context.ShoppingCartItems.FirstOrDefault(n =>
-                n.Match.Id == match.Id && n.ShoppingCartId == ShoppingCartId);
+                n.Match.Id == match.Id && n.Status == 0);
 
         if (shoppingCartItem != null)
         {
             if (shoppingCartItem.Amount > 1)
+            {
+                shoppingCartItem.Status = 1;
                 shoppingCartItem.Amount--;
+            }
             else
+            {
                 _context.ShoppingCartItems.Remove(shoppingCartItem);
+            }
         }
 
         _context.SaveChanges();
@@ -70,13 +76,16 @@ public class ShoppingCart
 
     public List<ShoppingCartItem> GetShoppingCartItems()
     {
-        return ShoppingCartItems ?? (ShoppingCartItems = _context.ShoppingCartItems
-            .Where(n => n.ShoppingCartId == ShoppingCartId).Include(n => n.Match).ToList());
+        var shoppingCartItems = (from sp in _context.ShoppingCartItems
+            where sp.Status == 0
+            select sp).Include(n => n.Match).ToList();
+
+        return shoppingCartItems;
     }
 
     public double GetShoppingCartTotal()
     {
-        return _context.ShoppingCartItems.Where(n => n.ShoppingCartId == ShoppingCartId)
+        return _context.ShoppingCartItems.Where(n => n.Status == 0)
             .Select(n => n.Match.Price * n.Amount).Sum();
     }
 

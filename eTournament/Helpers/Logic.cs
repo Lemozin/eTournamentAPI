@@ -57,6 +57,7 @@ namespace eTournament.Helpers
         }
 
         public Task<HttpResponseMessage> GetPostHttpClient(
+            RequestMethods method,
             bool isTokenAuth,
             bool isGetAync,
             string requestUri,
@@ -64,22 +65,28 @@ namespace eTournament.Helpers
             string token = null)
         {
             _client = _api.Initial();
-            switch (isGetAync)
+
+            if (isTokenAuth)
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            _json = JsonConvert.SerializeObject(param);
+            _data = new StringContent(_json, Encoding.UTF8, "application/json");
+            switch (method)
             {
-                case true:
-
-                    if (isTokenAuth)
-                        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+                case RequestMethods.GET:
                     _responseMessageNoAsync = _client.GetAsync(requestUri);
                     break;
-                default:
-                    if (isTokenAuth)
-                        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                    _json = JsonConvert.SerializeObject(param);
-                    _data = new StringContent(_json, Encoding.UTF8, "application/json");
+                case RequestMethods.POST:
                     _responseMessageNoAsync = _client.PostAsync(requestUri, _data);
+                    break;
+                case RequestMethods.PUT:
+                    _responseMessageNoAsync = _client.PutAsync(requestUri, _data);
+                    break;
+                case RequestMethods.DELETE:
+                    if (param != null)
+                        _responseMessageNoAsync = _client.DeleteAsync(requestUri);
+                    else
+                        _responseMessageNoAsync = _client.PostAsync(requestUri, _data);
                     break;
             }
 

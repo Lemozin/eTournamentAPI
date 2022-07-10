@@ -60,7 +60,7 @@ public class TeamsController : ControllerBase
     ///     Returns filtered team details
     /// </returns>
     //Get: Teams/Details/1
-    [HttpGet]
+    [HttpPost]
     [Route("get_team_details")]
     public async Task<IActionResult> Details(RequestIdModel request)
     {

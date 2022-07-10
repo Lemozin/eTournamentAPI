@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using eTournamentAPI.Data.RequestReturnModels;
+﻿using eTournamentAPI.Data.RequestReturnModels;
 using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Data.Static;

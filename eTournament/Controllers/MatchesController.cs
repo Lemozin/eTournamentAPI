@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
-using eTournament.Data.Static;
 using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
@@ -18,7 +17,6 @@ using Newtonsoft.Json;
 
 namespace eTournament.Controllers
 {
-    [Authorize(Roles = UserRoles.Admin)]
     public class MatchesController : Controller
     {
         private readonly TournamentAPI _api = new();
@@ -40,11 +38,46 @@ namespace eTournament.Controllers
             IEnumerable<Match> matches = new List<Match>();
             var userVM = new UserVM();
 
-            responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.GET,
-                false,
-                true,
-                "api/Matches/get_all_matches");
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+            var toggleLogSession = HttpContext.Session.GetString("LoggedOut");
+
+            var token = string.Empty;
+            if (toggleLogSession != null)
+            {
+                if (toggleLogSession.Equals("True"))
+                {
+                    TempData["Username"] = null;
+                    TempData["Role"] = null;
+                }
+                else
+                {
+                    token = HttpContext.Session.GetString("Token");
+                    TempData["Username"] = username;
+                    TempData["Role"] = role;
+                }
+            }
+            else
+            {
+                token = HttpContext.Session.GetString("Token");
+                TempData["Username"] = username;
+                TempData["Role"] = role;
+            }
+
+            if (!string.IsNullOrEmpty(token))
+                responseMessage = await _logic.GetPostHttpClientAsync(
+                    RequestMethods.GET,
+                    false,
+                    true,
+                    "api/Matches/get_all_matches",
+                    null,
+                    token);
+            else
+                responseMessage = await _logic.GetPostHttpClientAsync(
+                    RequestMethods.GET,
+                    false,
+                    true,
+                    "api/Matches/get_all_matches");
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -53,13 +86,12 @@ namespace eTournament.Controllers
 
                 if (matches != null)
                 {
-                    var token = TempData["Token"];
                     var userView = new UserVM();
 
                     if (token != null)
-                        if (!string.IsNullOrEmpty(token.ToString()))
+                        if (!string.IsNullOrEmpty(token))
                         {
-                            var claims = _logic.ExtractClaims(token.ToString());
+                            var claims = _logic.ExtractClaims(token);
 
                             userVM = new UserVM
                             {
@@ -81,6 +113,8 @@ namespace eTournament.Controllers
                                 TempData["Role"] = userVM.Role;
                                 HttpContext.Session.SetString("Role", userVM.Role);
                             }
+
+                            HttpContext.Session.SetString("LoggedOut", "");
                         }
                 }
             }
@@ -152,6 +186,11 @@ namespace eTournament.Controllers
         public async Task<IActionResult> Create()
         {
             var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
 
             ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
             ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
@@ -190,7 +229,7 @@ namespace eTournament.Controllers
                 false,
                 "api/Matches/create_match",
                 match,
-                token.ToString());
+                token);
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
@@ -253,7 +292,7 @@ namespace eTournament.Controllers
                     true,
                     "api/Matches/get_match_dropdown_values",
                     null,
-                    token.ToString());
+                    token);
 
                 if (responseMessage.IsSuccessStatusCode)
                 {

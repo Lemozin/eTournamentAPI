@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
-using eTournament.Data.Static;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +13,6 @@ using Newtonsoft.Json;
 
 namespace eTournament.Controllers
 {
-    [Authorize(Roles = UserRoles.Admin)]
     public class TeamsController : Controller
     {
         private readonly Logic _logic = new();
@@ -39,7 +37,7 @@ namespace eTournament.Controllers
             var token = HttpContext.Session.GetString("Token");
 
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.POST,
+                RequestMethods.GET,
                 true,
                 true,
                 "api/Teams/get_all_teams",
@@ -62,6 +60,11 @@ namespace eTournament.Controllers
         //Get: Teams/Create
         public IActionResult Create()
         {
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
             return View();
         }
 
@@ -84,7 +87,7 @@ namespace eTournament.Controllers
                 false,
                 false,
                 "api/Teams/create_team",
-                team, 
+                team,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -113,9 +116,9 @@ namespace eTournament.Controllers
 
             responseMessage = await _logic.GetPostHttpClientAsync(
                 RequestMethods.POST,
+                true,
                 false,
-                false,
-                "api/Players/get_player_details",
+                "api/Teams/get_team_details",
                 requestId,
                 token);
 
@@ -151,7 +154,7 @@ namespace eTournament.Controllers
                 RequestMethods.POST,
                 true,
                 false,
-                "api/Players/get_player_details",
+                "api/Teams/get_team_details",
                 requestId,
                 token);
 
@@ -217,7 +220,7 @@ namespace eTournament.Controllers
                 RequestMethods.POST,
                 true,
                 false,
-                "api/Players/get_player_details",
+                "api/Teams/get_team_details",
                 requestId,
                 token);
 

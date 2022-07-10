@@ -59,6 +59,11 @@ namespace eTournament.Controllers
         //Get: Players/Create
         public IActionResult Create()
         {
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
             return View();
         }
 

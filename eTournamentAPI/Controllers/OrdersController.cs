@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using eTournamentAPI.Data.Cart;
 using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Data.ViewModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,15 +57,8 @@ public class OrdersController : ControllerBase
     public IActionResult ShoppingCart()
     {
         var items = _shoppingCart.GetShoppingCartItems();
-        _shoppingCart.ShoppingCartItems = items;
 
-        var response = new ShoppingCartVM
-        {
-            ShoppingCart = _shoppingCart,
-            ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal()
-        };
-
-        return Ok(response);
+        return Ok(items);
     }
 
     /// <summary>
@@ -77,16 +71,9 @@ public class OrdersController : ControllerBase
     [Route("get_shopping_cart_total")]
     public IActionResult ShoppingCartTotal()
     {
-        var items = _shoppingCart.GetShoppingCartItems();
-        _shoppingCart.ShoppingCartItems = items;
+        var ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal();
 
-        var response = new ShoppingCartVM
-        {
-            ShoppingCart = _shoppingCart,
-            ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal()
-        };
-
-        return Ok(response.ShoppingCartTotal.ToString());
+        return Ok(ShoppingCartTotal);
     }
 
     /// <summary>
@@ -117,14 +104,19 @@ public class OrdersController : ControllerBase
     /// <returns>
     ///     Returns "ItemRemoveSuccess" if removed successfully
     /// </returns>
-    [HttpDelete]
+    [HttpPost]
     [Route("remove_iterms_from_shopping_cart")]
-    public async Task<IActionResult> RemoveItemFromShoppingCart(int id)
+    public async Task<IActionResult> RemoveItemFromShoppingCart(RequestIdModel id)
     {
-        var item = await _matchService.GetMatchByIdAsync(id);
+        var response = new ReturnString();
+
+        var item = await _matchService.GetMatchByIdAsync(id.RequestId);
 
         if (item != null) _shoppingCart.RemoveItemFromCart(item);
-        return Ok("ItemRemoveSuccess");
+
+        response.ReturnMessage = "ItemRemoveSuccess";
+
+        return Ok(response);
     }
 
     /// <summary>

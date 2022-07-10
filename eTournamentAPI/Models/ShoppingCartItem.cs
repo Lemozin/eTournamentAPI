@@ -13,4 +13,5 @@ public class ShoppingCartItem
 
 
     public string ShoppingCartId { get; set; }
+    public int Status { get; set; }
 }
