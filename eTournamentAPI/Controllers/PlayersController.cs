@@ -1,4 +1,6 @@
-﻿using eTournamentAPI.Data.Services;
+﻿using eTournament.Data.RequestReturnModels;
+using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.Services;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -59,11 +61,11 @@ public class PlayersController : ControllerBase
     ///     Returns player details
     /// </returns>
     //Get: Players/Details/1
-    [HttpGet]
+    [HttpPost]
     [Route("get_player_details")]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(RequestIdModel request)
     {
-        var playerDetails = await _service.GetByIdAsync(id);
+        var playerDetails = await _service.GetByIdAsync(request.RequestId);
 
         if (playerDetails == null) return Ok("NotFound");
         return Ok(playerDetails);
@@ -77,12 +79,12 @@ public class PlayersController : ControllerBase
     /// <returns>
     ///     Returns "PlayerEditSuccess" if updated successfully
     /// </returns>
-    [HttpPut]
+    [HttpPost]
     [Route("edit_player")]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,ProfilePictureURL,Bio")] Player player)
+    public async Task<IActionResult> Edit(RequestEditPlayerModel requestEdit)
     {
-        if (!ModelState.IsValid) return Ok(player);
-        await _service.UpdateAsync(id, player);
+        if (!ModelState.IsValid) return Ok(requestEdit.Player);
+        await _service.UpdateAsync(requestEdit.id, requestEdit.Player);
         return Ok("PlayerEditSuccess");
     }
 

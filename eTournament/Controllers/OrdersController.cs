@@ -3,12 +3,14 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using eTournament.Data.Cart;
+using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
 using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -17,10 +19,10 @@ namespace eTournament.Controllers
     [Authorize]
     public class OrdersController : Controller
     {
+        private readonly Logic _logic = new();
         private readonly IMatchService _matchService;
         private readonly IOrdersService _ordersService;
         private readonly ShoppingCart _shoppingCart;
-        private readonly Logic _logic = new();
         private HttpResponseMessage responseMessage = new();
         private Task<HttpResponseMessage> responseMessageNoAsync;
         private ShoppingCartVM shoppingCart;
@@ -34,20 +36,30 @@ namespace eTournament.Controllers
 
         public async Task<IActionResult> Index()
         {
-            List<Order> orders = new List<Order>();
+            var orders = new List<Order>();
+
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
 
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.GET,
+                true,
                 true,
                 "api/Orders/get_orders",
-                null);
+                null,
+                token.ToString());
 
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
                 orders = JsonConvert.DeserializeObject<List<Order>>(result);
             }
-            
+
             return View(orders);
         }
 
@@ -67,12 +79,22 @@ namespace eTournament.Controllers
             var reqtest = new RequestIdModel();
             var response = new ShoppingCartVM();
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             reqtest.RequestId = id;
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.GET,
+                true,
                 false,
                 "api/Orders/add_iterms_to_shopping_cart",
-                reqtest);
+                reqtest,
+                token.ToString());
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -84,12 +106,37 @@ namespace eTournament.Controllers
 
             if (response != null)
                 return RedirectToAction(nameof(ShoppingCart));
-            else
-                return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "Account");
         }
 
         public async Task<IActionResult> RemoveItemFromShoppingCart(int id)
         {
+            var reqtest = new RequestIdModel();
+            var response = new ShoppingCartVM();
+
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
+            reqtest.RequestId = id;
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
+                true,
+                false,
+                "api/Orders/remove_iterms_from_shopping_cart",
+                reqtest,
+                token.ToString());
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                response = JsonConvert.DeserializeObject<ShoppingCartVM>(result);
+            }
+
             var item = await _matchService.GetMatchByIdAsync(id);
 
             if (item != null) _shoppingCart.RemoveItemFromCart(item);

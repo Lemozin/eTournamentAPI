@@ -1,6 +1,12 @@
-﻿@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager; 
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager; 
 
-@if (!User.Identity.IsAuthenticated)
+@{
+    var username = TempData["Username"];
+    var userRole = TempData["Role"];
+}
+
+@if (username == null)
 {
     <a class="btn btn-outline-success my-2 my-sm-0" asp-controller="Account" asp-action="Login">
         <i class="bi bi-box-arrow-in-right"></i> Log in
@@ -13,12 +19,11 @@
 }
 else
 {
-
-    @*User profile section*@
+@*User profile section*@
     <div class="dropdown">
         <button class="btn btn-outline-success dropdown-toggle" type="button" id="profile-btn" data-toggle="dropdown"
                 aria-expanded="false">
-            <i class="bi bi-person-badge"></i> Hello @UserManager.GetUserName(User)
+            <i class="bi bi-person-badge"></i> Hello @username
         </button>
         <ul class="dropdown-menu" aria-labelledby="profile-btn">
             <li>
@@ -27,7 +32,7 @@ else
                 </a>
             </li>
 
-            @if (User.IsInRole("Admin"))
+            @if (userRole.Equals("ADMIN-USER"))
             {
                 <li>
                     <a class="dropdown-item" asp-controller="Account" asp-action="Users">

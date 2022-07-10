@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
 using eTournament.Data.Static;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -15,9 +17,9 @@ namespace eTournament.Controllers
     [Authorize(Roles = UserRoles.Admin)]
     public class TeamsController : Controller
     {
+        private readonly Logic _logic = new();
         private readonly ITeamService _service;
         private HttpResponseMessage responseMessage = new();
-        private readonly Logic _logic = new();
 
         public TeamsController(ITeamService service)
         {
@@ -28,11 +30,21 @@ namespace eTournament.Controllers
         {
             IEnumerable<Team> allTeamss = new List<Team>();
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 true,
                 "api/Teams/get_all_teams",
-                null);
+                null,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -58,12 +70,22 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(team);
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
                 false,
                 false,
                 "api/Teams/create_team",
-                team);
+                team, 
+                token);
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
@@ -81,11 +103,21 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             requestId.RequestId = id;
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
                 false,
                 false,
                 "api/Players/get_player_details",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -107,11 +139,21 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             requestId.RequestId = id;
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/get_player_details",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -131,12 +173,22 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(team);
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Team/edit_team",
-                team);
+                team,
+                token);
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
@@ -153,11 +205,21 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             requestId.RequestId = id;
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/get_player_details",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -179,11 +241,22 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             var response = new ReturnString();
             requestId.RequestId = id;
+
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Teams/delete_team",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {

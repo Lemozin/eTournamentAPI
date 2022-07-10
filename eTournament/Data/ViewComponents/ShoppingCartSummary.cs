@@ -21,7 +21,9 @@ namespace eTournament.Data.ViewComponents
 
                 return View(items.Count);
             }
-            catch (Exception e) { }
+            catch (Exception e)
+            {
+            }
 
             return View(0);
         }

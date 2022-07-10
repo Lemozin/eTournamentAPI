@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
 using eTournament.Helpers;
 using eTournament.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -12,9 +14,10 @@ namespace eTournament.Controllers
 {
     public class PlayersController : Controller
     {
+        private readonly Logic _logic = new();
         private readonly IPlayersService _service;
         private HttpResponseMessage responseMessage = new();
-        private readonly Logic _logic = new();
+
         public PlayersController(IPlayersService service)
         {
             _service = service;
@@ -24,11 +27,21 @@ namespace eTournament.Controllers
         {
             IEnumerable<Player> players = new List<Player>();
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.GET,
+                true,
                 true,
                 "api/Players/get_all_players",
-                null);
+                null,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -39,6 +52,7 @@ namespace eTournament.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+
             return View(players);
         }
 
@@ -53,12 +67,22 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(player);
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/create_player",
-                player);
+                player,
+                token);
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
@@ -75,11 +99,21 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             requestId.RequestId = id;
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/get_player_details",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -101,11 +135,21 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             requestId.RequestId = id;
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/get_player_details",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -125,12 +169,27 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(player);
 
+            var requestEdit = new RequestEditPlayerModel();
+
+            requestEdit.id = id;
+            requestEdit.Player = player;
+
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/edit_player",
-                player);
+                requestEdit,
+                token);
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
@@ -147,8 +206,17 @@ namespace eTournament.Controllers
             var requestId = new RequestIdModel();
             requestId.RequestId = id;
 
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Players/get_player_details",
                 requestId);
@@ -170,14 +238,25 @@ namespace eTournament.Controllers
         [ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var requestId = new RequestIdModel(); 
+            var requestId = new RequestIdModel();
             var response = new ReturnString();
+
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
             requestId.RequestId = id;
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.DELETE,
+                true,
                 false,
                 "api/Players/delete_player",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {

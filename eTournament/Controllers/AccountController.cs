@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using eTournament.Data;
+using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,6 +19,7 @@ namespace eTournament.Controllers
     {
         private readonly TournamentAPI _api = new();
         private readonly AppDbContext _context;
+        private readonly Logic _logic = new();
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private HttpClient client = new();
@@ -26,7 +28,7 @@ namespace eTournament.Controllers
         private HttpResponseMessage responseMessage = new();
 
         public AccountController(
-            UserManager<ApplicationUser> userManager, 
+            UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             AppDbContext context)
         {
@@ -39,8 +41,22 @@ namespace eTournament.Controllers
         public async Task<IActionResult> Users()
         {
             IEnumerable<ApplicationUser> users = new List<ApplicationUser>();
-            client = _api.Initial();
-            responseMessage = await client.GetAsync("api/Account/list_login_users");
+
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
+
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
+                true,
+                true,
+                "api/Account/list_all_users",
+                null,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -75,28 +91,9 @@ namespace eTournament.Controllers
                 token = JsonConvert.DeserializeObject<ReturnString>(result);
                 TempData["Token"] = token.ReturnMessage;
 
-                if (!string.IsNullOrEmpty(token.ReturnMessage))
-                {
-                    var user = await _userManager.FindByEmailAsync(loginVM.EmailAddress);
-                    if (user != null)
-                    {
-                        var passwordCheck = await _userManager.CheckPasswordAsync(user, loginVM.Password);
-                        if (passwordCheck)
-                        {
-                            var resultPassSign =
-                                await _signInManager.PasswordSignInAsync(user, loginVM.Password, false, false);
-                            if (resultPassSign.Succeeded) return RedirectToAction("Index", "Matches");
-                        }
+                HttpContext.Session.SetString("Token", token.ReturnMessage);
 
-                        TempData["Error"] = "Wrong credentials. Please, try again!";
-                        return View(loginVM);
-                    }
-
-                    TempData["Error"] = "Wrong credentials. Please, try again!";
-                    return View(loginVM);
-                }
-                TempData["Error"] = "Wrong credentials. Please, try again!";
-                return View(loginVM);
+                return RedirectToAction("Index", "Matches");
             }
 
             TempData["Error"] = "Wrong credentials. Please, try again!";

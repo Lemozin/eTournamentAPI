@@ -1,4 +1,5 @@
-﻿using eTournamentAPI.Data.Services;
+﻿using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.Services;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -45,9 +46,9 @@ public class UsersController : ControllerBase
     //GET: Coaches/details/1
     [HttpGet]
     [Route("get_coach_details")]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(RequestIdModel request)
     {
-        var coachDetails = await _service.GetByIdAsync(id);
+        var coachDetails = await _service.GetByIdAsync(request.RequestId);
         if (coachDetails == null) return Ok("NotFound");
         return Ok(coachDetails);
     }

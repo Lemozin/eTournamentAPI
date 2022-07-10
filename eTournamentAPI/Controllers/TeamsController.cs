@@ -1,4 +1,5 @@
-﻿using eTournamentAPI.Data.Services;
+﻿using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.Services;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -61,9 +62,9 @@ public class TeamsController : ControllerBase
     //Get: Teams/Details/1
     [HttpGet]
     [Route("get_team_details")]
-    public async Task<IActionResult> Details(int id)
+    public async Task<IActionResult> Details(RequestIdModel request)
     {
-        var teamDetails = await _service.GetByIdAsync(id);
+        var teamDetails = await _service.GetByIdAsync(request.RequestId);
         if (teamDetails == null) return Ok("NotFound");
         return Ok(teamDetails);
     }

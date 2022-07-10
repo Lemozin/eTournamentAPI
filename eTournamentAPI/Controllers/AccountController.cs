@@ -44,7 +44,7 @@ public class AccountController : ControllerBase
     ///     Returns list of registered users
     /// </returns>
     [HttpGet]
-    [Route("list_login_users")]
+    [Route("list_all_users")]
     public async Task<IActionResult> Users()
     {
         var users = await _context.Users.ToListAsync();
@@ -62,6 +62,7 @@ public class AccountController : ControllerBase
     [Route("get_authorization_token")]
     public async Task<IActionResult> Login(LoginVM loginVM)
     {
+        var responseMsg = new ReturnString();
         if (!string.IsNullOrEmpty(loginVM.EmailAddress) &&
             !string.IsNullOrEmpty(loginVM.Password))
         {
@@ -102,8 +103,9 @@ public class AccountController : ControllerBase
                         );
 
                         var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                        responseMsg.ReturnMessage = tokenString;
 
-                        return Ok(tokenString);
+                        return Ok(responseMsg);
                     }
 
                     return NotFound();
@@ -146,9 +148,19 @@ public class AccountController : ControllerBase
         var newUserResponse = await _userManager.CreateAsync(newUser, registerVM.Password);
 
         if (newUserResponse.Succeeded)
+        {
             await _userManager.AddToRoleAsync(newUser, UserRoles.User);
-
-        returnMsg.ReturnMessage = "RegisterCompleted";
-        return Ok(returnMsg);
+            returnMsg.ReturnMessage = "RegisterCompleted";
+            return Ok(returnMsg);
+        }
+        else
+        {
+            var errorMsg = string.Empty;
+            foreach (var error in newUserResponse.Errors)
+            {
+                errorMsg = error.Description;
+            }
+            return BadRequest(errorMsg);
+        }
     }
 }

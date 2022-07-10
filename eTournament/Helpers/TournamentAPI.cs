@@ -8,7 +8,7 @@ namespace eTournament.Helpers
         public HttpClient Initial()
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:44321");
+            client.BaseAddress = new Uri("https://localhost:7170/");
             return client;
         }
     }

@@ -24,30 +24,6 @@ public class MatchesController : ControllerBase
         _service = service;
     }
 
-    [HttpGet]
-    [Route("get_current_user")]
-    [AllowAnonymous]
-    public UserVM GetCurrentUser()
-    {
-        var identity = HttpContext.User.Identity as ClaimsIdentity;
-
-        if (identity != null)
-        {
-            var userClaims = identity.Claims;
-
-            return new UserVM
-            {
-                Username = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
-                EmailAddress = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
-                GivenName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
-                Surname = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Surname)?.Value,
-                Role = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
-            };
-        }
-
-        return null;
-    }
-
     /// <summary>
     ///     Get list of all matches
     /// </summary>

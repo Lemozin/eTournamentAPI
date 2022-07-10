@@ -23,7 +23,11 @@
                         <a class="nav-link text-dark" asp-area="" asp-controller="Matches" asp-action="Index"><i class="bi bi-film"></i> Matches</a>
                     </li>
 
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    @{
+                        var userRole = TempData["Role"];
+                    }
+
+                    @if (userRole != null && userRole.Equals("ADMIN-USER"))
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

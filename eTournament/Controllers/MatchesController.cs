@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
 using eTournament.Data.Services;
 using eTournament.Data.Static;
@@ -10,6 +11,7 @@ using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
@@ -36,17 +38,51 @@ namespace eTournament.Controllers
         public async Task<IActionResult> Index()
         {
             IEnumerable<Match> matches = new List<Match>();
+            var userVM = new UserVM();
 
             responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.GET,
                 false,
                 true,
-                "api/Matches/get_all_matches",
-                null);
+                "api/Matches/get_all_matches");
 
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
                 matches = JsonConvert.DeserializeObject<IEnumerable<Match>>(result);
+
+                if (matches != null)
+                {
+                    var token = TempData["Token"];
+                    var userView = new UserVM();
+
+                    if (token != null)
+                        if (!string.IsNullOrEmpty(token.ToString()))
+                        {
+                            var claims = _logic.ExtractClaims(token.ToString());
+
+                            userVM = new UserVM
+                            {
+                                Username = claims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                                EmailAddress = claims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
+                                GivenName = claims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
+                                Surname = claims.FirstOrDefault(o => o.Type == ClaimTypes.Surname)?.Value,
+                                Role = claims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
+                            };
+
+                            if (userVM.Username != null)
+                            {
+                                TempData["Username"] = userVM.GivenName;
+                                HttpContext.Session.SetString("Username", userVM.GivenName);
+                            }
+
+                            if (userVM.Role != null)
+                            {
+                                TempData["Role"] = userVM.Role;
+                                HttpContext.Session.SetString("Role", userVM.Role);
+                            }
+                        }
+                }
             }
             else
             {
@@ -65,6 +101,7 @@ namespace eTournament.Controllers
             requestString.RequestString = searchString;
 
             responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
                 false,
                 false,
                 "api/Matches/get_match_by_filter",
@@ -92,6 +129,7 @@ namespace eTournament.Controllers
             requestId.RequestId = id;
 
             responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
                 false,
                 false,
                 "api/Matches/get_match_details_id",
@@ -138,9 +176,16 @@ namespace eTournament.Controllers
                 return View(match);
             }
 
-            var token = TempData["Token"];
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
 
             responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.POST,
                 true,
                 false,
                 "api/Matches/create_match",
@@ -192,11 +237,18 @@ namespace eTournament.Controllers
 
             if (id != match.Id) return View("NotFound");
 
-            var token = TempData["Token"];
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            var token = HttpContext.Session.GetString("Token");
 
             if (!ModelState.IsValid)
             {
                 responseMessage = await _logic.GetPostHttpClientAsync(
+                    RequestMethods.POST,
                     false,
                     true,
                     "api/Matches/get_match_dropdown_values",
@@ -217,7 +269,8 @@ namespace eTournament.Controllers
             }
 
             responseMessage = await _logic.GetPostHttpClientAsync(
-                false,
+                RequestMethods.POST,
+                true,
                 false,
                 "api/Matches/edit_match",
                 match);

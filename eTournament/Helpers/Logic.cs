@@ -1,7 +1,11 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using eTournament.Data.Enums;
 using Newtonsoft.Json;
 
 namespace eTournament.Helpers
@@ -16,6 +20,7 @@ namespace eTournament.Helpers
         private Task<HttpResponseMessage> _responseMessageNoAsync;
 
         public async Task<HttpResponseMessage> GetPostHttpClientAsync(
+            RequestMethods method,
             bool isTokenAuth,
             bool isGetAync,
             string requestUri,
@@ -23,22 +28,28 @@ namespace eTournament.Helpers
             string token = null)
         {
             _client = _api.Initial();
-            switch (isGetAync)
+
+            if (isTokenAuth)
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            _json = JsonConvert.SerializeObject(param);
+            _data = new StringContent(_json, Encoding.UTF8, "application/json");
+            switch (method)
             {
-                case true:
-
-                    if (isTokenAuth)
-                        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+                case RequestMethods.GET:
                     _responseMessage = await _client.GetAsync(requestUri);
                     break;
-                default:
-                    if (isTokenAuth)
-                        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                    _json = JsonConvert.SerializeObject(param);
-                    _data = new StringContent(_json, Encoding.UTF8, "application/json");
+                case RequestMethods.POST:
                     _responseMessage = await _client.PostAsync(requestUri, _data);
+                    break;
+                case RequestMethods.PUT:
+                    _responseMessage = await _client.PutAsync(requestUri, _data);
+                    break;
+                case RequestMethods.DELETE:
+                    if (param != null)
+                        _responseMessage = await _client.DeleteAsync(requestUri);
+                    else
+                        _responseMessage = await _client.PostAsync(requestUri, _data);
                     break;
             }
 
@@ -73,6 +84,14 @@ namespace eTournament.Helpers
             }
 
             return _responseMessageNoAsync;
+        }
+
+        public IEnumerable<Claim> ExtractClaims(string jwtToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = (JwtSecurityToken)tokenHandler.ReadToken(jwtToken);
+            var claims = securityToken.Claims;
+            return claims;
         }
     }
 }
