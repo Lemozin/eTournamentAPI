@@ -134,6 +134,8 @@ public class OrdersController : ControllerBase
     public async Task<IActionResult> CompleteOrder()
     {
         var emailCredential = new EmailSMTPCredentials();
+        var orderTimes = new List<OrderItem>();
+        var response = new ReturnString();
         var body = string.Empty;
         var port = 0;
         var host = string.Empty;
@@ -143,7 +145,7 @@ public class OrdersController : ControllerBase
         var MatchId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userEmailAddress = User.FindFirstValue(ClaimTypes.Email);
 
-        await _ordersService.StoreOrderAsync(items, MatchId, userEmailAddress);
+        await _ordersService.StoreOrderAsync(items, MatchId, userEmailAddress, orderTimes);
         await _shoppingCart.ClearShoppingCartAsync();
 
         emailCredential = _shoppingCart.GetEmailSmtpCredentials();
@@ -152,14 +154,18 @@ public class OrdersController : ControllerBase
         usernameSMTP = emailCredential.Username;
         passwordSMTP = emailCredential.Password;
 
+        var ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal();
+
         _logic.SendCompletedOrderEmail(
-            "New orders created",
+            ShoppingCartTotal,
             userEmailAddress,
-            port,
             host,
             usernameSMTP,
-            passwordSMTP);
+            passwordSMTP,
+            orderTimes);
 
-        return Ok("OrderCompleted");
+        response.ReturnMessage = "OrderCompleted";
+
+        return Ok(response);
     }
 }

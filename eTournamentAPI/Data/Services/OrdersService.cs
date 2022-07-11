@@ -22,7 +22,7 @@ public class OrdersService : IOrdersService
         return orders;
     }
 
-    public async Task StoreOrderAsync(List<ShoppingCartItem> items, string UserId, string userEmailAddress)
+    public async Task StoreOrderAsync(List<ShoppingCartItem> items, string UserId, string userEmailAddress, List<OrderItem> outOrderItems)
     {
         var order = new Order
         {
@@ -40,6 +40,7 @@ public class OrdersService : IOrdersService
                 OrderId = order.Id,
                 Price = item.Match.Price
             };
+            outOrderItems.Add(orderItem);
             await _context.OrderItems.AddAsync(orderItem);
         }
 

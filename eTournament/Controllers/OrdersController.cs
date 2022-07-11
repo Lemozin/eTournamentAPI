@@ -175,7 +175,8 @@ namespace eTournament.Controllers
         public async Task<IActionResult> CompleteOrder()
         {
             var items = new List<ShoppingCartItem>();
-            
+            var response = new ReturnString();
+
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
             var email = HttpContext.Session.GetString("Email");
@@ -211,7 +212,7 @@ namespace eTournament.Controllers
             if (responseMessage.IsSuccessStatusCode)
             {
                 var result = responseMessage.Content.ReadAsStringAsync().Result;
-                items = JsonConvert.DeserializeObject<List<ShoppingCartItem>>(result);
+                response = JsonConvert.DeserializeObject<ReturnString>(result);
             }
 
             return View("OrderCompleted");
