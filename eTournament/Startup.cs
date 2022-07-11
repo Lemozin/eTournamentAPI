@@ -1,6 +1,5 @@
 ﻿using eTournament.Data;
 using eTournament.Data.Cart;
-using eTournament.Data.Services;
 using eTournament.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -30,12 +29,6 @@ namespace eTournament
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
 
-            //Services configuration
-            services.AddScoped<IPlayersService, PlayersService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ITeamService, TeamService>();
-            services.AddScoped<IMatchService, MatchService>();
-            services.AddScoped<IOrdersService, OrdersService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped(sc => ShoppingCart.GetShoppingCart(sc));

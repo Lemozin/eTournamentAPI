@@ -4,6 +4,8 @@ using eTournamentAPI.Data.RequestReturnModels;
 using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Data.ViewModels;
+using eTournamentAPI.Helpers;
+using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +23,15 @@ public class OrdersController : ControllerBase
     private readonly IMatchService _matchService;
     private readonly IOrdersService _ordersService;
     private readonly ShoppingCart _shoppingCart;
+    private readonly IEmailService _emailService;
+    private readonly Logic _logic = new();
 
-    public OrdersController(IMatchService matchService, ShoppingCart shoppingCart, IOrdersService ordersService)
+    public OrdersController(IMatchService matchService, ShoppingCart shoppingCart, IOrdersService ordersService, IEmailService emailService)
     {
         _matchService = matchService;
         _shoppingCart = shoppingCart;
         _ordersService = ordersService;
+        _emailService = emailService;
     }
 
     /// <summary>
@@ -129,12 +134,35 @@ public class OrdersController : ControllerBase
     [Route("complete_order")]
     public async Task<IActionResult> CompleteOrder()
     {
+        IEnumerable<EmailSMTPCredentials> emailCredential = new List<EmailSMTPCredentials>();
+        var body = string.Empty;
+        var port = 0;
+        var host = string.Empty;
+        var usernameSMTP = string.Empty;
+        var passwordSMTP = string.Empty;
         var items = _shoppingCart.GetShoppingCartItems();
         var MatchId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userEmailAddress = User.FindFirstValue(ClaimTypes.Email);
 
         await _ordersService.StoreOrderAsync(items, MatchId, userEmailAddress);
         await _shoppingCart.ClearShoppingCartAsync();
+
+        emailCredential = await _emailService.GetAllAsync();
+        foreach (var credetial in emailCredential)
+        {
+            port = credetial.Port;
+            host = credetial.Host;
+            usernameSMTP = credetial.Username;
+            passwordSMTP = credetial.Password;
+        }
+
+        _logic.SendCompletedOrderEmail(
+            "New orders created",
+            userEmailAddress,
+            port,
+            host,
+            usernameSMTP,
+            passwordSMTP);
 
         return Ok("OrderCompleted");
     }

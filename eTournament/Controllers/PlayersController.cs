@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
-using eTournament.Data.Services;
+using eTournament.Data.ReturnModels;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Http;
@@ -15,12 +15,10 @@ namespace eTournament.Controllers
     public class PlayersController : Controller
     {
         private readonly Logic _logic = new();
-        private readonly IPlayersService _service;
         private HttpResponseMessage responseMessage = new();
 
-        public PlayersController(IPlayersService service)
+        public PlayersController()
         {
-            _service = service;
         }
 
         public async Task<IActionResult> Index()

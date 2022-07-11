@@ -1,5 +1,6 @@
 ﻿namespace eTournament.Data.ViewModels
 {
+
     public class UserVM
     {
         public string Username { get; set; }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using eTournament.Data.Cart;
 using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
-using eTournament.Data.Services;
+using eTournament.Data.ReturnModels;
 using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
@@ -19,17 +19,13 @@ namespace eTournament.Controllers
     public class OrdersController : Controller
     {
         private readonly Logic _logic = new();
-        private readonly IMatchService _matchService;
-        private readonly IOrdersService _ordersService;
         private readonly ShoppingCart _shoppingCart;
         private HttpResponseMessage responseMessage = new();
         private Task<HttpResponseMessage> responseMessageNoAsync;
 
-        public OrdersController(IMatchService matchService, ShoppingCart shoppingCart, IOrdersService ordersService)
+        public OrdersController(ShoppingCart shoppingCart)
         {
-            _matchService = matchService;
             _shoppingCart = shoppingCart;
-            _ordersService = ordersService;
         }
 
         public async Task<IActionResult> Index()
@@ -179,8 +175,10 @@ namespace eTournament.Controllers
         public async Task<IActionResult> CompleteOrder()
         {
             var items = new List<ShoppingCartItem>();
+            
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
+            var email = HttpContext.Session.GetString("Email");
             var shoppingCartTotal = 0.0;
 
             TempData["Username"] = username;
@@ -202,11 +200,19 @@ namespace eTournament.Controllers
                 items = JsonConvert.DeserializeObject<List<ShoppingCartItem>>(result);
             }
 
-            var MatchId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userEmailAddress = User.FindFirstValue(ClaimTypes.Email);
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.GET,
+                true,
+                true,
+                "api/Orders/complete_order",
+                null,
+                token);
 
-            await _ordersService.StoreOrderAsync(items.ToList(), MatchId, userEmailAddress);
-            await _shoppingCart.ClearShoppingCartAsync();
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                items = JsonConvert.DeserializeObject<List<ShoppingCartItem>>(result);
+            }
 
             return View("OrderCompleted");
         }

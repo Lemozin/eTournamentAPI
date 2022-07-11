@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
-using eTournament.Data.Services;
+using eTournament.Data.ReturnModels;
 using eTournament.Data.ViewModels;
 using eTournament.Helpers;
 using eTournament.Models;
@@ -21,15 +21,13 @@ namespace eTournament.Controllers
     {
         private readonly TournamentAPI _api = new();
         private readonly Logic _logic = new();
-        private readonly IMatchService _service;
         private HttpClient client = new();
         private StringContent data;
         private string json;
         private HttpResponseMessage responseMessage = new();
 
-        public MatchesController(IMatchService service)
+        public MatchesController()
         {
-            _service = service;
         }
 
         [AllowAnonymous]
@@ -114,6 +112,11 @@ namespace eTournament.Controllers
                                 HttpContext.Session.SetString("Role", userVM.Role);
                             }
 
+                            if (userVM.EmailAddress != null)
+                            {
+                                HttpContext.Session.SetString("Email", userVM.EmailAddress);
+                            }
+
                             HttpContext.Session.SetString("LoggedOut", "");
                         }
                 }
@@ -185,16 +188,16 @@ namespace eTournament.Controllers
         //GET: Matches/Create
         public async Task<IActionResult> Create()
         {
-            var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
-            var username = HttpContext.Session.GetString("Username");
-            var role = HttpContext.Session.GetString("Role");
+            //var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+            //var username = HttpContext.Session.GetString("Username");
+            //var role = HttpContext.Session.GetString("Role");
 
-            TempData["Username"] = username;
-            TempData["Role"] = role;
+            //TempData["Username"] = username;
+            //TempData["Role"] = role;
 
-            ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-            ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-            ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+            //ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
+            //ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
+            //ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
 
             return View();
         }
@@ -206,11 +209,11 @@ namespace eTournament.Controllers
             var response = new ReturnString();
             if (!ModelState.IsValid)
             {
-                var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+                //var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
 
-                ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-                ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-                ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+                //ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
+                //ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
+                //ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
 
                 return View(match);
             }
@@ -242,30 +245,30 @@ namespace eTournament.Controllers
         //GET: Matches/Edit/1
         public async Task<IActionResult> Edit(int id)
         {
-            var matchDetails = await _service.GetMatchByIdAsync(id);
-            if (matchDetails == null) return View("NotFound");
+            //var matchDetails = await _service.GetMatchByIdAsync(id);
+            //if (matchDetails == null) return View("NotFound");
 
-            var response = new NewMatchVM
-            {
-                Id = matchDetails.Id,
-                Name = matchDetails.Name,
-                Description = matchDetails.Description,
-                Price = matchDetails.Price,
-                StartDate = matchDetails.StartDate,
-                EndDate = matchDetails.EndDate,
-                ImageURL = matchDetails.ImageURL,
-                MatchCategory = matchDetails.MatchCategory,
-                TeamId = matchDetails.TeamId,
-                CoachId = matchDetails.CoachId,
-                PlayerIds = matchDetails.Players_Matches.Select(n => n.PlayerId).ToList()
-            };
+            //var response = new NewMatchVM
+            //{
+            //    Id = matchDetails.Id,
+            //    Name = matchDetails.Name,
+            //    Description = matchDetails.Description,
+            //    Price = matchDetails.Price,
+            //    StartDate = matchDetails.StartDate,
+            //    EndDate = matchDetails.EndDate,
+            //    ImageURL = matchDetails.ImageURL,
+            //    MatchCategory = matchDetails.MatchCategory,
+            //    TeamId = matchDetails.TeamId,
+            //    CoachId = matchDetails.CoachId,
+            //    PlayerIds = matchDetails.Players_Matches.Select(n => n.PlayerId).ToList()
+            //};
 
-            var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
-            ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-            ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-            ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+            //var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+            //ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
+            //ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
+            //ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
 
-            return View(response);
+            return View();
         }
 
         [HttpPost]

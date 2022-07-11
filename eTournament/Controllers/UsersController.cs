@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using eTournament.Data.Enums;
 using eTournament.Data.RequestReturnModels;
-using eTournament.Data.Services;
+using eTournament.Data.ReturnModels;
 using eTournament.Helpers;
 using eTournament.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +16,10 @@ namespace eTournament.Controllers
     public class UsersController : Controller
     {
         private readonly Logic _logic = new();
-        private readonly IUserService _service;
         private HttpResponseMessage responseMessage = new();
 
-        public UsersController(IUserService service)
+        public UsersController()
         {
-            _service = service;
         }
 
         [AllowAnonymous]

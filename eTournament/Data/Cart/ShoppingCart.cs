@@ -74,14 +74,11 @@ namespace eTournament.Data.Cart
             _context.SaveChanges();
         }
 
-        //public List<ShoppingCartItem> GetShoppingCartItems()
-        //{
-        //    var shoppingCartItems = (from sp in _context.ShoppingCartItems
-        //                             where sp.Status == 0
-        //                             select sp).Include(n => n.Match).ToList();
-
-        //    return shoppingCartItems;
-        //}
+        public List<ShoppingCartItem> GetShoppingCartItems()
+        {
+            return ShoppingCartItems ?? (ShoppingCartItems = _context.ShoppingCartItems
+                .Where(n => n.ShoppingCartId == ShoppingCartId).Include(n => n.Match).ToList());
+        }
 
         public double GetShoppingCartTotal()
         {

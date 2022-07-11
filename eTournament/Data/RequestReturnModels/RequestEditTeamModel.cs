@@ -2,6 +2,7 @@
 
 namespace eTournament.Data.RequestReturnModels
 {
+
     public class RequestEditTeamModel
     {
         public int id { get; set; }

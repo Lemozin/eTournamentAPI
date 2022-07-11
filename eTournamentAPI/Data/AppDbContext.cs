@@ -1,4 +1,5 @@
 ﻿using eTournamentAPI.Models;
+using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Player_Match> Players_Matches { get; set; }
     public DbSet<Team> Teams { get; set; }
     public DbSet<Coach> Coaches { get; set; }
+    public DbSet<EmailSMTPCredentials> EmailSmtpCredentials { get; set; }
 
 
     //Orders related tables
