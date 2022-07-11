@@ -16,12 +16,14 @@ public class Logic
     {
         var Body = string.Empty;
 
+        Body = "<html>";
+        Body += "Order items : <br/>";
         foreach (var orderItem in OrderItems)
-            Body += "Order items : <br/>" +
-                    "Match Name : " + orderItem.Match.Name +
+            Body += "Match Name : " + orderItem.Match.Name +
                     "<br/>";
 
         Body += "Sub total :" + ShoppingCartTotal;
+        Body += "</html>";
 
         var message = new MailMessage();
         message.From = new MailAddress("info@etournament.com");
