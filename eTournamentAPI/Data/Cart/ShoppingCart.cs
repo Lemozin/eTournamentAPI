@@ -83,6 +83,14 @@ public class ShoppingCart
         return shoppingCartItems;
     }
 
+    public EmailSMTPCredentials GetEmailSmtpCredentials()
+    {
+        var emailSmtpCredentials = (from sp in _context.EmailSmtpCredentials
+            select sp).FirstOrDefault();
+
+        return emailSmtpCredentials;
+    }
+
     public double GetShoppingCartTotal()
     {
         return _context.ShoppingCartItems.Where(n => n.Status == 0)
@@ -91,7 +99,7 @@ public class ShoppingCart
 
     public async Task ClearShoppingCartAsync()
     {
-        var items = await _context.ShoppingCartItems.Where(n => n.ShoppingCartId == ShoppingCartId).ToListAsync();
+        var items = await _context.ShoppingCartItems.Where(n => n.Status == 0).ToListAsync();
         _context.ShoppingCartItems.RemoveRange(items);
         await _context.SaveChangesAsync();
     }

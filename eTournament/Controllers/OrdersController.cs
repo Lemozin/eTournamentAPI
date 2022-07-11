@@ -201,7 +201,7 @@ namespace eTournament.Controllers
             }
 
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.GET,
+                RequestMethods.POST,
                 true,
                 true,
                 "api/Orders/complete_order",

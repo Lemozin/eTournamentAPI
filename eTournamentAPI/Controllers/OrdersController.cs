@@ -26,12 +26,11 @@ public class OrdersController : ControllerBase
     private readonly IEmailService _emailService;
     private readonly Logic _logic = new();
 
-    public OrdersController(IMatchService matchService, ShoppingCart shoppingCart, IOrdersService ordersService, IEmailService emailService)
+    public OrdersController(IMatchService matchService, ShoppingCart shoppingCart, IOrdersService ordersService)
     {
         _matchService = matchService;
         _shoppingCart = shoppingCart;
         _ordersService = ordersService;
-        _emailService = emailService;
     }
 
     /// <summary>
@@ -44,10 +43,10 @@ public class OrdersController : ControllerBase
     [Route("get_orders")]
     public async Task<IActionResult> Index()
     {
-        var MatchId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var email = User.FindFirstValue(ClaimTypes.Email);
         var userRole = User.FindFirstValue(ClaimTypes.Role);
 
-        var orders = await _ordersService.GetOrdersByUserIdAndRoleAsync(MatchId, userRole);
+        var orders = await _ordersService.GetOrdersByUserIdAndRoleAsync(email, userRole);
         return Ok(orders);
     }
 
@@ -134,7 +133,7 @@ public class OrdersController : ControllerBase
     [Route("complete_order")]
     public async Task<IActionResult> CompleteOrder()
     {
-        IEnumerable<EmailSMTPCredentials> emailCredential = new List<EmailSMTPCredentials>();
+        var emailCredential = new EmailSMTPCredentials();
         var body = string.Empty;
         var port = 0;
         var host = string.Empty;
@@ -147,14 +146,11 @@ public class OrdersController : ControllerBase
         await _ordersService.StoreOrderAsync(items, MatchId, userEmailAddress);
         await _shoppingCart.ClearShoppingCartAsync();
 
-        emailCredential = await _emailService.GetAllAsync();
-        foreach (var credetial in emailCredential)
-        {
-            port = credetial.Port;
-            host = credetial.Host;
-            usernameSMTP = credetial.Username;
-            passwordSMTP = credetial.Password;
-        }
+        emailCredential = _shoppingCart.GetEmailSmtpCredentials();
+        port = emailCredential.Port;
+        host = emailCredential.Host;
+        usernameSMTP = emailCredential.Username;
+        passwordSMTP = emailCredential.Password;
 
         _logic.SendCompletedOrderEmail(
             "New orders created",

@@ -93,7 +93,7 @@ namespace eTournament.Controllers
 
                             userVM = new UserVM
                             {
-                                Username = claims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                                Username = claims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
                                 EmailAddress = claims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
                                 GivenName = claims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
                                 Surname = claims.FirstOrDefault(o => o.Type == ClaimTypes.Surname)?.Value,

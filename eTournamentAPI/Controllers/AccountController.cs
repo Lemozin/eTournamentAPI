@@ -81,9 +81,11 @@ public class AccountController : ControllerBase
                         var firstName = fullNames[0];
                         var surname = fullNames[1];
 
+                        var userId = _userManager.FindByEmailAsync(ClaimTypes.NameIdentifier);
+
                         var claims = new[]
                         {
-                            new Claim(ClaimTypes.NameIdentifier, loggedInUser.Result.UserName),
+                            new Claim(ClaimTypes.NameIdentifier, userId.Id.ToString()),
                             new Claim(ClaimTypes.Email, loggedInUser.Result.Email),
                             new Claim(ClaimTypes.GivenName, firstName),
                             new Claim(ClaimTypes.Surname, surname),
