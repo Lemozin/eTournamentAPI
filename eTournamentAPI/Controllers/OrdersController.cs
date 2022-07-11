@@ -145,6 +145,8 @@ public class OrdersController : ControllerBase
         var MatchId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var userEmailAddress = User.FindFirstValue(ClaimTypes.Email);
 
+        var ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal();
+
         await _ordersService.StoreOrderAsync(items, MatchId, userEmailAddress, orderTimes);
         await _shoppingCart.ClearShoppingCartAsync();
 
@@ -153,8 +155,6 @@ public class OrdersController : ControllerBase
         host = emailCredential.Host;
         usernameSMTP = emailCredential.Username;
         passwordSMTP = emailCredential.Password;
-
-        var ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal();
 
         _logic.SendCompletedOrderEmail(
             ShoppingCartTotal,
