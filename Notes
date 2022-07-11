@@ -1,0 +1,23 @@
+This porject is a basic e-commerce site which consists of the front end and middleware. On the front end, i have used ASP.NET MVC core web appication and on the middleware
+i have used ASP.NET MVC core web API. 
+
+And this consists of the following:
+
+1. User registration (Register with an email address and password and confirm password), with email validation
+2. User login (with an email address and password)
+3. Display a list of products (show product image, product name, price and quantity)
+4. A ‘add to cart button next to each product
+5. View shopping cart (show the product, quantity and price with a Total value of all the products selected)
+6. Checkout button (send an email to the logged-in users' email address with all the products they have purchased with an order number)
+7. Store user information in a database as well as the products purchased for each user against an order number.
+
+Project are as follows:
+
+eTournament - Front end
+eTournamentAPI - Middleware
+eTournamentAPITests - Unit test for the middleware(API)
+
+The front end project depends on the middleware (listing of products, etc). There's a class under (eTournamentAPI/eTournament/Helpers/TournamentAPI.cs) called 
+TournamentAPI class, in there you need to specify your hosted API url.
+
+Also specify the url on the appsettings.json file.
