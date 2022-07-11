@@ -1,5 +1,4 @@
 ﻿using eTournamentAPI.Models;
-using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

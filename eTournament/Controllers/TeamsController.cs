@@ -18,10 +18,6 @@ namespace eTournament.Controllers
         private readonly Logic _logic = new();
         private HttpResponseMessage responseMessage = new();
 
-        public TeamsController()
-        {
-        }
-
         public async Task<IActionResult> Index()
         {
             IEnumerable<Team> allTeamss = new List<Team>();

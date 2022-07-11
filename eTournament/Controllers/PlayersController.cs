@@ -17,10 +17,6 @@ namespace eTournament.Controllers
         private readonly Logic _logic = new();
         private HttpResponseMessage responseMessage = new();
 
-        public PlayersController()
-        {
-        }
-
         public async Task<IActionResult> Index()
         {
             IEnumerable<Player> players = new List<Player>();

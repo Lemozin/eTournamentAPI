@@ -22,7 +22,8 @@ public class OrdersService : IOrdersService
         return orders;
     }
 
-    public async Task StoreOrderAsync(List<ShoppingCartItem> items, string UserId, string userEmailAddress, List<OrderItem> outOrderItems)
+    public async Task StoreOrderAsync(List<ShoppingCartItem> items, string UserId, string userEmailAddress,
+        List<OrderItem> outOrderItems)
     {
         var order = new Order
         {

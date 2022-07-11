@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mail;
@@ -111,20 +111,20 @@ namespace eTournament.Helpers
             string Username,
             string Password)
         {
-            MailMessage message = new MailMessage();
+            var message = new MailMessage();
             message.From = new MailAddress("info@etournament.com");
             message.To.Add(ToMail);
             message.Subject = "New order request";
             message.IsBodyHtml = true;
             message.Body = Body;
 
-            SmtpClient smtpClient = new SmtpClient();
+            var smtpClient = new SmtpClient();
             smtpClient.UseDefaultCredentials = true;
 
             smtpClient.Host = Host;
             smtpClient.Port = Port;
             smtpClient.EnableSsl = true;
-            smtpClient.Credentials = new System.Net.NetworkCredential(Username, Password);
+            smtpClient.Credentials = new NetworkCredential(Username, Password);
             smtpClient.Send(message);
         }
     }

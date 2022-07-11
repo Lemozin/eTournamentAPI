@@ -20,11 +20,11 @@ namespace eTournamentAPI.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class OrdersController : ControllerBase
 {
+    private readonly IEmailService _emailService;
+    private readonly Logic _logic = new();
     private readonly IMatchService _matchService;
     private readonly IOrdersService _ordersService;
     private readonly ShoppingCart _shoppingCart;
-    private readonly IEmailService _emailService;
-    private readonly Logic _logic = new();
 
     public OrdersController(IMatchService matchService, ShoppingCart shoppingCart, IOrdersService ordersService)
     {

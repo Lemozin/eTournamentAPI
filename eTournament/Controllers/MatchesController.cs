@@ -26,10 +26,6 @@ namespace eTournament.Controllers
         private string json;
         private HttpResponseMessage responseMessage = new();
 
-        public MatchesController()
-        {
-        }
-
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
@@ -113,9 +109,7 @@ namespace eTournament.Controllers
                             }
 
                             if (userVM.EmailAddress != null)
-                            {
                                 HttpContext.Session.SetString("Email", userVM.EmailAddress);
-                            }
 
                             HttpContext.Session.SetString("LoggedOut", "");
                         }
@@ -208,7 +202,6 @@ namespace eTournament.Controllers
             var newMatchDropdownsVM = new NewMatchDropdownsVM();
             var response = new ReturnString();
             if (!ModelState.IsValid)
-            {
                 //var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
 
                 //ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
@@ -216,7 +209,6 @@ namespace eTournament.Controllers
                 //ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
 
                 return View(match);
-            }
 
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");

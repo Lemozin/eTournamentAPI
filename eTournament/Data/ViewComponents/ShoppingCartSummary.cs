@@ -13,9 +13,9 @@ namespace eTournament.Data.ViewComponents
 {
     public class ShoppingCartSummary : ViewComponent
     {
+        private readonly Logic _logic = new();
         private readonly ShoppingCart _shoppingCart;
         private Task<HttpResponseMessage> responseMessageNoAsync;
-        private readonly Logic _logic = new();
 
         public ShoppingCartSummary(ShoppingCart shoppingCart)
         {

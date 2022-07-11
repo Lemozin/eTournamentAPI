@@ -1,12 +1,11 @@
 ﻿using eTournamentAPI.Data.Base;
 using eTournamentAPI.Models;
 
-namespace eTournamentAPI.Data.Services
+namespace eTournamentAPI.Data.Services;
+
+public class EmailService : EntityBaseRepository<EmailSMTPCredentials>, IEmailService
 {
-    public class EmailService : EntityBaseRepository<EmailSMTPCredentials>, IEmailService
+    public EmailService(AppDbContext context) : base(context)
     {
-        public EmailService(AppDbContext context) : base(context)
-        {
-        }
     }
 }

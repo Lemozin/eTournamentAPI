@@ -1,50 +1,43 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using eTournamentAPI.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace eTournamentAPI.Controllers.Tests
+namespace eTournamentAPI.Controllers.Tests;
+
+[TestClass]
+public class PlayersControllerTests
 {
-    [TestClass()]
-    public class PlayersControllerTests
+    [TestMethod]
+    public void PlayersControllerTest()
     {
-        [TestMethod()]
-        public void PlayersControllerTest()
-        {
-            Assert.Fail();
-        }
+        Assert.Fail();
+    }
 
-        [TestMethod()]
-        public void IndexTest()
-        {
-            Assert.Fail();
-        }
+    [TestMethod]
+    public void IndexTest()
+    {
+        Assert.Fail();
+    }
 
-        [TestMethod()]
-        public void CreateTest()
-        {
-            Assert.Fail();
-        }
+    [TestMethod]
+    public void CreateTest()
+    {
+        Assert.Fail();
+    }
 
-        [TestMethod()]
-        public void DetailsTest()
-        {
-            Assert.Fail();
-        }
+    [TestMethod]
+    public void DetailsTest()
+    {
+        Assert.Fail();
+    }
 
-        [TestMethod()]
-        public void EditTest()
-        {
-            Assert.Fail();
-        }
+    [TestMethod]
+    public void EditTest()
+    {
+        Assert.Fail();
+    }
 
-        [TestMethod()]
-        public void DeleteConfirmedTest()
-        {
-            Assert.Fail();
-        }
+    [TestMethod]
+    public void DeleteConfirmedTest()
+    {
+        Assert.Fail();
     }
 }

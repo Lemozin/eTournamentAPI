@@ -18,10 +18,6 @@ namespace eTournament.Controllers
         private readonly Logic _logic = new();
         private HttpResponseMessage responseMessage = new();
 
-        public UsersController()
-        {
-        }
-
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
