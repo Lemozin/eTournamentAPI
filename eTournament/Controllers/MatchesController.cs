@@ -36,27 +36,25 @@ namespace eTournament.Controllers
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
             var toggleLogSession = HttpContext.Session.GetString("LoggedOut");
+            TempData["LoggedOut"] = toggleLogSession;
 
-            var token = string.Empty;
+            var token = HttpContext.Session.GetString("Token");
+            
+            if(token != null) TempData["Token"] = token;
+
             if (toggleLogSession != null)
             {
-                if (toggleLogSession.Equals("True"))
+                if (!toggleLogSession.Equals("True"))
                 {
-                    TempData["Username"] = null;
-                    TempData["Role"] = null;
-                }
-                else
-                {
-                    token = HttpContext.Session.GetString("Token");
                     TempData["Username"] = username;
                     TempData["Role"] = role;
                 }
             }
             else
             {
-                token = HttpContext.Session.GetString("Token");
                 TempData["Username"] = username;
                 TempData["Role"] = role;
+                TempData["Token"] = token;
             }
 
             if (!string.IsNullOrEmpty(token))
@@ -84,6 +82,7 @@ namespace eTournament.Controllers
                     var userView = new UserVM();
 
                     if (token != null)
+                    {
                         if (!string.IsNullOrEmpty(token))
                         {
                             var claims = _logic.ExtractClaims(token);
@@ -97,23 +96,54 @@ namespace eTournament.Controllers
                                 Role = claims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
                             };
 
-                            if (userVM.Username != null)
+                            if (toggleLogSession != null)
                             {
-                                TempData["Username"] = userVM.GivenName;
-                                HttpContext.Session.SetString("Username", userVM.GivenName);
-                            }
+                                if (!toggleLogSession.Equals("True"))
+                                {
+                                    if (userVM.Username != null)
+                                    {
+                                        TempData["Username"] = userVM.GivenName;
+                                        HttpContext.Session.SetString("Username", userVM.GivenName);
+                                    }
 
-                            if (userVM.Role != null)
+                                    if (userVM.Role != null)
+                                    {
+                                        TempData["Role"] = userVM.Role;
+                                        HttpContext.Session.SetString("Role", userVM.Role);
+                                    }
+
+                                    if (userVM.EmailAddress != null)
+                                        HttpContext.Session.SetString("Email", userVM.EmailAddress);
+                                }
+                            }
+                            else
                             {
-                                TempData["Role"] = userVM.Role;
-                                HttpContext.Session.SetString("Role", userVM.Role);
-                            }
+                                if (userVM.Username != null)
+                                {
+                                    TempData["Username"] = userVM.GivenName;
+                                    HttpContext.Session.SetString("Username", userVM.GivenName);
+                                }
 
-                            if (userVM.EmailAddress != null)
-                                HttpContext.Session.SetString("Email", userVM.EmailAddress);
+                                if (userVM.Role != null)
+                                {
+                                    TempData["Role"] = userVM.Role;
+                                    HttpContext.Session.SetString("Role", userVM.Role);
+                                }
+
+                                if (userVM.EmailAddress != null)
+                                    HttpContext.Session.SetString("Email", userVM.EmailAddress);
+                            }
 
                             HttpContext.Session.SetString("LoggedOut", "");
                         }
+                    }
+                    else
+                    {
+                        HttpContext.Session.SetString("LoggedOut", "");
+                        TempData["Username"] = null;
+                        TempData["Role"] = null;
+                        TempData["Token"] = null;
+                    }
                 }
             }
             else
