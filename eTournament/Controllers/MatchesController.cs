@@ -114,6 +114,8 @@ namespace eTournament.Controllers
 
                                     if (userVM.EmailAddress != null)
                                         HttpContext.Session.SetString("Email", userVM.EmailAddress);
+
+                                    HttpContext.Session.SetString("Token", token.ToString());
                                 }
                             }
                             else
@@ -132,6 +134,8 @@ namespace eTournament.Controllers
 
                                 if (userVM.EmailAddress != null)
                                     HttpContext.Session.SetString("Email", userVM.EmailAddress);
+
+                                HttpContext.Session.SetString("Token", token.ToString());
                             }
 
                             HttpContext.Session.SetString("LoggedOut", "");

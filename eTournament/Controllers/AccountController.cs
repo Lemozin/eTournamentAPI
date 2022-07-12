@@ -50,6 +50,8 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            if (token != null) TempData["Token"] = token;
+
             responseMessage = await _logic.GetPostHttpClientAsync(
                 RequestMethods.GET,
                 true,
