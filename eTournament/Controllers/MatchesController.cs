@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace eTournament.Controllers
 {
@@ -27,7 +28,7 @@ namespace eTournament.Controllers
         private HttpResponseMessage responseMessage = new();
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             IEnumerable<Match> matches = new List<Match>();
             var userVM = new UserVM();
@@ -120,7 +121,7 @@ namespace eTournament.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(matches);
+            return View(matches.ToPagedList(page, 4));
         }
 
         [AllowAnonymous]

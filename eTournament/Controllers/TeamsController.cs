@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace eTournament.Controllers
 {
@@ -18,7 +19,7 @@ namespace eTournament.Controllers
         private readonly Logic _logic = new();
         private HttpResponseMessage responseMessage = new();
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             IEnumerable<Team> allTeamss = new List<Team>();
 
@@ -48,7 +49,7 @@ namespace eTournament.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(allTeamss);
+            return View(allTeamss.ToPagedList(page, 4));
         }
 
         //Get: Teams/Create

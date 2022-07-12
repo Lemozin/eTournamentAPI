@@ -12,6 +12,7 @@ using eTournament.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace eTournament.Controllers
 {
@@ -27,7 +28,7 @@ namespace eTournament.Controllers
             _shoppingCart = shoppingCart;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             var orders = new List<Order>();
 
@@ -53,7 +54,7 @@ namespace eTournament.Controllers
                 orders = JsonConvert.DeserializeObject<List<Order>>(result);
             }
 
-            return View(orders);
+            return View(orders.ToPagedList(page, 4));
         }
 
         public async Task<IActionResult> ShoppingCart()

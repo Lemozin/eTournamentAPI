@@ -1,4 +1,9 @@
-﻿@model List<Order>
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Bootstrap4.Core
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common
+
+@model IPagedList<Order>
 
 @{
     ViewData["Title"] = "All orders";
@@ -19,7 +24,7 @@
                 <th>Total</th>
                 @if (userRole != null && userRole.Equals("ADMIN-USER"))
                 {
-                    <th>User</th>
+                    <th>User Email</th>
                 }
             </tr>
             </thead>
@@ -51,12 +56,12 @@
                     </td>
                     @if (userRole != null && userRole.Equals("ADMIN-USER"))
                     {
-                        <td class="align-middle"> @order.User.FullName </td>
+                        <td class="align-middle"> @order.Email </td>
                     }
                 </tr>
             }
             </tbody>
         </table>
-
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.ClassicPlusFirstAndLast)
     </div>
 </div>

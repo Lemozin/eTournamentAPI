@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using X.PagedList;
 
 namespace eTournament.Controllers
 {
@@ -19,7 +20,7 @@ namespace eTournament.Controllers
         private HttpResponseMessage responseMessage = new();
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             IEnumerable<Coach> allCoaches = new List<Coach>();
 
@@ -49,7 +50,7 @@ namespace eTournament.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(allCoaches);
+            return View(allCoaches.ToPagedList(page, 4));
         }
 
         //GET: Coaches/details/1

@@ -1,4 +1,7 @@
-﻿@model IEnumerable<Match>
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList
+@using X.PagedList.Mvc.Bootstrap4.Core
+@model IPagedList<Match>
 
 @{
     ViewData["Title"] = "List of Matches";
@@ -95,5 +98,7 @@
         </div>
     }
 </div>
+
+@Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.ClassicPlusFirstAndLast)
 
 @await Html.PartialAsync("_CreateItem", "Matches")

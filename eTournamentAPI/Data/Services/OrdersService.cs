@@ -14,10 +14,8 @@ public class OrdersService : IOrdersService
 
     public async Task<List<Order>> GetOrdersByUserIdAndRoleAsync(string Email, string userRole)
     {
-        var orders = await _context.Orders.Include(n=>n.OrderItems).ThenInclude(n=>n.Match)
+        var orders = await _context.Orders.Include(n=>n.OrderItems).ThenInclude(o=>o.Match)
             .ToListAsync();
-
-        orders = orders.Where(o => o.Status == 1).ToList();
 
         if (userRole != "ADMIN-USER") orders = orders.Where(n => n.Email == Email).ToList();
 

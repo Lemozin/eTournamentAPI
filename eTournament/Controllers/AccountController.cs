@@ -51,7 +51,7 @@ namespace eTournament.Controllers
             var token = HttpContext.Session.GetString("Token");
 
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.POST,
+                RequestMethods.GET,
                 true,
                 true,
                 "api/Account/list_all_users",

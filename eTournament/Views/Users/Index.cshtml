@@ -1,4 +1,7 @@
-﻿@model IEnumerable<Coach>
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList
+@using X.PagedList.Mvc.Bootstrap4.Core
+@model IEnumerable<Coach>
 
 @{
     ViewData["Title"] = "List of Coaches";
@@ -46,6 +49,7 @@
             }
             </tbody>
         </table>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }), Bootstrap4PagedListRenderOptions.ClassicPlusFirstAndLast)
     </div>
 </div>
 
