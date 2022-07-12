@@ -148,7 +148,7 @@ public class OrdersController : ControllerBase
         var ShoppingCartTotal = _shoppingCart.GetShoppingCartTotal();
 
         await _ordersService.StoreOrderAsync(items, MatchId, userEmailAddress, orderTimes);
-        await _shoppingCart.ClearShoppingCartAsync();
+        await _shoppingCart.ClearShoppingCartAsync(userEmailAddress);
 
         emailCredential = _shoppingCart.GetEmailSmtpCredentials();
         port = emailCredential.Port;

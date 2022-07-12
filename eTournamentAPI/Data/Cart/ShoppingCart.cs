@@ -97,10 +97,20 @@ public class ShoppingCart
             .Select(n => n.Match.Price * n.Amount).Sum();
     }
 
-    public async Task ClearShoppingCartAsync()
+    public async Task ClearShoppingCartAsync(string Email)
     {
         var items = await _context.ShoppingCartItems.Where(n => n.Status == 0).ToListAsync();
         _context.ShoppingCartItems.RemoveRange(items);
+
+        var orders = await _context.Orders.ToListAsync();
+
+        orders = orders.Where(n => n.Email == Email).ToList();
+
+        if (orders != null)
+        {
+            foreach (var order in orders) order.Status = 1;
+        }
+
         await _context.SaveChangesAsync();
     }
 }

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "All orders";
+    var userRole = TempData["Role"];
 }
 
 <div class="row">
@@ -16,7 +17,7 @@
                 <th>Order ID</th>
                 <th>Items</th>
                 <th>Total</th>
-                @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                @if (userRole != null && userRole.Equals("ADMIN-USER"))
                 {
                     <th>User</th>
                 }
@@ -29,20 +30,26 @@
                     <td class="align-middle">@order.Id</td>
                     <td class="align-middle">
                         <ul style="list-style-type: none">
-                            @foreach (var item in order.OrderItems)
+                            @if (order.OrderItems != null)
                             {
-                                <li>
-                                    <div class="alert alert-info" role="alert">
-                                        <span class="badge bg-success">@item.Amount</span> [@item.Price.ToString("c")] - @item.Match.Name
-                                    </div>
-                                </li>
+                                @foreach (var item in order.OrderItems)
+                                {
+                                    <li>
+                                        <div class="alert alert-info" role="alert">
+                                            <span class="badge bg-success">@item.Amount</span> [@item.Price.ToString("c")] - @item.Match.Name
+                                        </div>
+                                    </li>
+                                }
                             }
                         </ul>
                     </td>
                     <td class="align-middle">
-                        @order.OrderItems.Select(m => m.Match.Price * m.Amount).Sum().ToString("c")
+                        @if (order.OrderItems != null)
+                        {
+                            @order.OrderItems.Select(m => m.Match.Price * m.Amount).Sum().ToString("c")
+                        }
                     </td>
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    @if (userRole != null && userRole.Equals("ADMIN-USER"))
                     {
                         <td class="align-middle"> @order.User.FullName </td>
                     }

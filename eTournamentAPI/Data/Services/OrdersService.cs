@@ -14,10 +14,12 @@ public class OrdersService : IOrdersService
 
     public async Task<List<Order>> GetOrdersByUserIdAndRoleAsync(string Email, string userRole)
     {
-        var orders = await _context.Orders
+        var orders = await _context.Orders.Include(n=>n.OrderItems).ThenInclude(n=>n.Match)
             .ToListAsync();
 
-        if (userRole != "Admin") orders = orders.Where(n => n.Email == Email).ToList();
+        orders = orders.Where(o => o.Status == 1).ToList();
+
+        if (userRole != "ADMIN-USER") orders = orders.Where(n => n.Email == Email).ToList();
 
         return orders;
     }
@@ -27,7 +29,8 @@ public class OrdersService : IOrdersService
     {
         var order = new Order
         {
-            Email = userEmailAddress
+            Email = userEmailAddress,
+            Status = 0
         };
         await _context.Orders.AddAsync(order);
         await _context.SaveChangesAsync();

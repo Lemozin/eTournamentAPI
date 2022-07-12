@@ -10,5 +10,7 @@ public class Order
 
     public string Email { get; set; }
 
+    public int Status { get; set; }
+
     public List<OrderItem> OrderItems { get; set; }
 }
