@@ -217,16 +217,27 @@ namespace eTournament.Controllers
         //GET: Matches/Create
         public async Task<IActionResult> Create()
         {
-            //var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
-            //var username = HttpContext.Session.GetString("Username");
-            //var role = HttpContext.Session.GetString("Role");
+            var newMatchDropdownsVM = new NewMatchDropdownsVM();
+            responseMessage = await _logic.GetPostHttpClientAsync(
+                RequestMethods.GET,
+                false,
+                true,
+                "api/Matches/get_new_match_dropdowns_values");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var result = responseMessage.Content.ReadAsStringAsync().Result;
+                newMatchDropdownsVM = JsonConvert.DeserializeObject<NewMatchDropdownsVM>(result);
+            }
 
-            //TempData["Username"] = username;
-            //TempData["Role"] = role;
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
 
-            //ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-            //ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-            //ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+            TempData["Username"] = username;
+            TempData["Role"] = role;
+
+            ViewBag.Teams = new SelectList(newMatchDropdownsVM.Teams, "Id", "Name");
+            ViewBag.Coaches = new SelectList(newMatchDropdownsVM.Coaches, "Id", "FullName");
+            ViewBag.Players = new SelectList(newMatchDropdownsVM.Players, "Id", "FullName");
 
             return View();
         }
@@ -237,13 +248,24 @@ namespace eTournament.Controllers
             var newMatchDropdownsVM = new NewMatchDropdownsVM();
             var response = new ReturnString();
             if (!ModelState.IsValid)
-                //var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+            {
+                responseMessage = await _logic.GetPostHttpClientAsync(
+                    RequestMethods.GET,
+                    false,
+                    true,
+                    "api/Matches/get_new_match_dropdowns_values");
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    var result = responseMessage.Content.ReadAsStringAsync().Result;
+                    newMatchDropdownsVM = JsonConvert.DeserializeObject<NewMatchDropdownsVM>(result);
+                }
 
-                //ViewBag.Teams = new SelectList(matchDropdownsData.Teams, "Id", "Name");
-                //ViewBag.Coaches = new SelectList(matchDropdownsData.Coaches, "Id", "FullName");
-                //ViewBag.Players = new SelectList(matchDropdownsData.Players, "Id", "FullName");
+                ViewBag.Teams = new SelectList(newMatchDropdownsVM.Teams, "Id", "Name");
+                ViewBag.Coaches = new SelectList(newMatchDropdownsVM.Coaches, "Id", "FullName");
+                ViewBag.Players = new SelectList(newMatchDropdownsVM.Players, "Id", "FullName");
 
                 return View(match);
+            }
 
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");

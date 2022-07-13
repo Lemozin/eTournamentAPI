@@ -81,6 +81,15 @@ public class MatchesController : ControllerBase
         return Ok(matchDetail);
     }
 
+    [HttpGet]
+    [Route("get_new_match_dropdowns_values")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetNewMatchDropdownsValues()
+    {
+        var matchDropdownsData = await _service.GetNewMatchDropdownsValues();
+        return Ok(matchDropdownsData);
+    }
+
     /// <summary>
     ///     Creates a match
     /// </summary>
