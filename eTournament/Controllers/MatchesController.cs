@@ -155,7 +155,7 @@ namespace eTournament.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(matches.ToPagedList(page, 4));
+            return View(matches.ToPagedList(page, 6));
         }
 
         [AllowAnonymous]

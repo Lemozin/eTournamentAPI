@@ -1,4 +1,5 @@
 ﻿using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -62,12 +63,19 @@ public class UsersController : ControllerBase
     /// </returns>
     [HttpPost]
     [Route("create_coach")]
-    public async Task<IActionResult> Create([Bind("ProfilePictureURL,FullName,Bio")] Coach coach)
+    public async Task<IActionResult> Create(PlayersTeamsCoachesReqRes playersTeamsCoaches)
     {
+        var coach = new Coach();
+        var response = new ReturnString();
+        coach.ProfilePictureURL = playersTeamsCoaches.ProfilePictureURL;
+        coach.FullName = playersTeamsCoaches.ProfilePictureName;
+        coach.Bio = playersTeamsCoaches.ProfilePictureBio;
+
         if (!ModelState.IsValid) return Ok(coach);
 
         await _service.AddAsync(coach);
-        return Ok("CoachCreateSuccess");
+        response.ReturnMessage = "CoachCreateSuccess";
+        return Ok(response);
     }
 
     /// <summary>
@@ -80,17 +88,22 @@ public class UsersController : ControllerBase
     /// </returns>
     [HttpPut]
     [Route("edit_coach")]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,ProfilePictureURL,FullName,Bio")] Coach coach)
+    public async Task<IActionResult> Edit(PlayersTeamsCoachesReqResId playersTeamsCoachesReq)
     {
+        var coach = new Coach();
+        var response = new ReturnString();
+        coach.Id = playersTeamsCoachesReq.id;
+        coach.ProfilePictureURL = playersTeamsCoachesReq.PlayersTeamsCoachesReqRes.ProfilePictureURL;
+        coach.FullName = playersTeamsCoachesReq.PlayersTeamsCoachesReqRes.ProfilePictureName;
+        coach.Bio = playersTeamsCoachesReq.PlayersTeamsCoachesReqRes.ProfilePictureBio;
+
         if (!ModelState.IsValid) return Ok(coach);
 
-        if (id == coach.Id)
-        {
-            await _service.UpdateAsync(id, coach);
-            return Ok("CoachEditSuccess");
-        }
+        await _service.UpdateAsync(playersTeamsCoachesReq.id, coach);
 
-        return Ok(coach);
+        response.ReturnMessage = "CoachEditSuccess";
+
+        return Ok(response);
     }
 
     /// <summary>
@@ -100,15 +113,21 @@ public class UsersController : ControllerBase
     /// <returns>
     ///     Returns "CoachDeleteSuccess" if removed successfully
     /// </returns>
-    [HttpDelete]
+    [HttpPost]
     [ActionName("Delete")]
     [Route("delete_coach")]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(RequestIdModel requestId)
     {
-        var coachDetails = await _service.GetByIdAsync(id);
-        if (coachDetails == null) return Ok("NotFound");
+        var response = new ReturnString();
+        var playerDetails = await _service.GetByIdAsync(requestId.RequestId);
 
-        await _service.DeleteAsync(id);
-        return Ok("CoachDeleteSuccess");
+        response.ReturnMessage = "NotFound";
+
+        if (playerDetails == null) return Ok(response);
+
+        await _service.DeleteAsync(requestId.RequestId);
+        response.ReturnMessage = "PlayerDeleteSuccess";
+
+        return Ok(response);
     }
 }

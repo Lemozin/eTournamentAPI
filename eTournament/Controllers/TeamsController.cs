@@ -70,6 +70,8 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(team);
 
+            var playersTeamsCoachesReqRes = new PlayersTeamsCoachesReqRes();
+
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
 
@@ -78,13 +80,17 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            playersTeamsCoachesReqRes.ProfilePictureURL = team.Logo;
+            playersTeamsCoachesReqRes.ProfilePictureName = team.Name;
+            playersTeamsCoachesReqRes.ProfilePictureBio = team.Description;
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
                 RequestMethods.POST,
-                false,
+                true,
                 false,
                 "api/Teams/create_team",
-                team,
+                playersTeamsCoachesReqRes,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -173,6 +179,9 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(team);
 
+            var playersTeamsCoachesReqResId = new PlayersTeamsCoachesReqResId();
+            var playersTeamsCoachesReqRes = new PlayersTeamsCoachesReqRes();
+
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
 
@@ -181,13 +190,19 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            playersTeamsCoachesReqResId.id = id;
+            playersTeamsCoachesReqRes.ProfilePictureURL = team.Logo;
+            playersTeamsCoachesReqRes.ProfilePictureName = team.Name;
+            playersTeamsCoachesReqRes.ProfilePictureBio = team.Description;
+            playersTeamsCoachesReqResId.PlayersTeamsCoachesReqRes = playersTeamsCoachesReqRes;
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.POST,
+                RequestMethods.PUT,
                 true,
                 false,
-                "api/Team/edit_team",
-                team,
+                "api/Teams/edit_team",
+                playersTeamsCoachesReqResId,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {

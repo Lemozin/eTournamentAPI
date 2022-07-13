@@ -1,4 +1,5 @@
 ﻿using eTournamentAPI.Data.RequestReturnModels;
+using eTournamentAPI.Data.ReturnModels;
 using eTournamentAPI.Data.Services;
 using eTournamentAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -45,11 +46,19 @@ public class TeamsController : ControllerBase
     /// </returns>
     [HttpPost]
     [Route("create_team")]
-    public async Task<IActionResult> Create([Bind("Logo,Name,Description")] Team team)
+    public async Task<IActionResult> Create(PlayersTeamsCoachesReqRes playersTeamsCoaches)
     {
+        var team = new Team();
+        var response = new ReturnString();
+        team.Logo = playersTeamsCoaches.ProfilePictureURL;
+        team.Name = playersTeamsCoaches.ProfilePictureName;
+        team.Description = playersTeamsCoaches.ProfilePictureBio;
+
         if (!ModelState.IsValid) return Ok(team);
+
         await _service.AddAsync(team);
-        return Ok("TeamCreateSuccess");
+        response.ReturnMessage = "TeamCreateSuccess";
+        return Ok(response);
     }
 
     /// <summary>
@@ -79,11 +88,21 @@ public class TeamsController : ControllerBase
     /// </returns>
     [HttpPut]
     [Route("edit_team")]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Logo,Name,Description")] Team team)
+    public async Task<IActionResult> Edit(PlayersTeamsCoachesReqResId playersTeamsCoachesReq)
     {
+        var team = new Team();
+        var response = new ReturnString();
+        team.Id = playersTeamsCoachesReq.id;
+        team.Logo = playersTeamsCoachesReq.PlayersTeamsCoachesReqRes.ProfilePictureURL;
+        team.Name = playersTeamsCoachesReq.PlayersTeamsCoachesReqRes.ProfilePictureName;
+        team.Description = playersTeamsCoachesReq.PlayersTeamsCoachesReqRes.ProfilePictureBio;
+
         if (!ModelState.IsValid) return Ok(team);
-        await _service.UpdateAsync(id, team);
-        return Ok("TeamEditSuccess");
+        await _service.UpdateAsync(playersTeamsCoachesReq.id, team);
+
+        response.ReturnMessage = "TeamEditSuccess";
+
+        return Ok(response);
     }
 
     /// <summary>
@@ -93,15 +112,21 @@ public class TeamsController : ControllerBase
     /// <returns>
     ///     Returns "TeamDeleteSuccess" if deleted successfully
     /// </returns>
-    [HttpDelete]
+    [HttpPost]
     [ActionName("Delete")]
     [Route("delete_team")]
-    public async Task<IActionResult> DeleteConfirm(int id)
+    public async Task<IActionResult> DeleteConfirm(RequestIdModel requestId)
     {
-        var teamDetails = await _service.GetByIdAsync(id);
-        if (teamDetails == null) return Ok("NotFound");
+        var response = new ReturnString();
+        var playerDetails = await _service.GetByIdAsync(requestId.RequestId);
 
-        await _service.DeleteAsync(id);
-        return Ok("TeamDeleteSuccess");
+        response.ReturnMessage = "NotFound";
+
+        if (playerDetails == null) return Ok(response);
+
+        await _service.DeleteAsync(requestId.RequestId);
+        response.ReturnMessage = "PlayerDeleteSuccess";
+
+        return Ok(response);
     }
 }

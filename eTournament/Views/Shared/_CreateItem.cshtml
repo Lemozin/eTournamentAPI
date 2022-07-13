@@ -1,15 +1,31 @@
-﻿@model string;
+﻿@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model string;
 
 @{
     var username = TempData["Username"];
     var userRole = TempData["Role"];
+    var token = TempData["Token"];
 }
 
-@if (username != null && userRole.Equals("ADMIN-USER"))
+@if (token != null)
 {
-    <div style="bottom: 90px; position: fixed; right: 25px;" class="text-white">
-        <a asp-controller="@Model" asp-action="Create" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Add New
-        </a>
-    </div>
+    @if (!string.IsNullOrEmpty(token.ToString()))
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = (JwtSecurityToken)tokenHandler.ReadToken(token.ToString());
+        var claims = securityToken.Claims;
+
+        userRole = claims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value;
+
+        @if (userRole != null && userRole.Equals("ADMIN-USER"))
+        {
+            <div style="bottom: 90px; position: fixed; right: 25px;" class="text-white">
+                <a asp-controller="@Model" asp-action="Create" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Add New
+                </a>
+            </div>
+        }
+    }    
 }

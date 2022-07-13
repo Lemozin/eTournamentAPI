@@ -90,7 +90,7 @@ public class MatchesController : ControllerBase
     /// </returns>
     [HttpPost]
     [Route("create_match")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Admin)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ADMIN-USER")]
     public async Task<IActionResult> Create(NewMatchVM match)
     {
         var response = new ReturnString();

@@ -69,6 +69,8 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(player);
 
+            var playersTeamsCoachesReqRes = new PlayersTeamsCoachesReqRes();
+
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
 
@@ -77,13 +79,17 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            playersTeamsCoachesReqRes.ProfilePictureURL = player.ProfilePictureURL;
+            playersTeamsCoachesReqRes.ProfilePictureName = player.FullName;
+            playersTeamsCoachesReqRes.ProfilePictureBio = player.Bio;
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
                 RequestMethods.POST,
                 true,
                 false,
                 "api/Players/create_player",
-                player,
+                playersTeamsCoachesReqRes,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -171,10 +177,8 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(player);
 
-            var requestEdit = new RequestEditPlayerModel();
-
-            requestEdit.id = id;
-            requestEdit.Player = player;
+            var playersTeamsCoachesReqResId = new PlayersTeamsCoachesReqResId();
+            var playersTeamsCoachesReqRes = new PlayersTeamsCoachesReqRes();
 
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
@@ -184,13 +188,19 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            playersTeamsCoachesReqResId.id = id;
+            playersTeamsCoachesReqRes.ProfilePictureURL = player.ProfilePictureURL;
+            playersTeamsCoachesReqRes.ProfilePictureName = player.FullName;
+            playersTeamsCoachesReqRes.ProfilePictureBio = player.Bio;
+            playersTeamsCoachesReqResId.PlayersTeamsCoachesReqRes = playersTeamsCoachesReqRes;
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.POST,
+                RequestMethods.PUT,
                 true,
                 false,
                 "api/Players/edit_player",
-                requestEdit,
+                playersTeamsCoachesReqResId,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -221,7 +231,8 @@ namespace eTournament.Controllers
                 true,
                 false,
                 "api/Players/get_player_details",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -253,7 +264,7 @@ namespace eTournament.Controllers
 
             requestId.RequestId = id;
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.DELETE,
+                RequestMethods.POST,
                 true,
                 false,
                 "api/Players/delete_player",

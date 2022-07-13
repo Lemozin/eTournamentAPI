@@ -108,6 +108,8 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(coach);
 
+            var playersTeamsCoachesReqRes = new PlayersTeamsCoachesReqRes();
+
             var username = HttpContext.Session.GetString("Username");
             var role = HttpContext.Session.GetString("Role");
 
@@ -116,13 +118,17 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            playersTeamsCoachesReqRes.ProfilePictureURL = coach.ProfilePictureURL;
+            playersTeamsCoachesReqRes.ProfilePictureName = coach.FullName;
+            playersTeamsCoachesReqRes.ProfilePictureBio = coach.Bio;
+
             var response = new ReturnString();
             responseMessage = await _logic.GetPostHttpClientAsync(
                 RequestMethods.POST,
                 true,
                 false,
-                "api/Teams/create_team",
-                coach,
+                "api/Users/create_coach",
+                playersTeamsCoachesReqRes,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -174,6 +180,9 @@ namespace eTournament.Controllers
         {
             if (!ModelState.IsValid) return View(coach);
 
+            var playersTeamsCoachesReqResId = new PlayersTeamsCoachesReqResId();
+            var playersTeamsCoachesReqRes = new PlayersTeamsCoachesReqRes();
+
             var response = new ReturnString();
 
             var username = HttpContext.Session.GetString("Username");
@@ -184,12 +193,18 @@ namespace eTournament.Controllers
 
             var token = HttpContext.Session.GetString("Token");
 
+            playersTeamsCoachesReqResId.id = id;
+            playersTeamsCoachesReqRes.ProfilePictureURL = coach.ProfilePictureURL;
+            playersTeamsCoachesReqRes.ProfilePictureName = coach.FullName;
+            playersTeamsCoachesReqRes.ProfilePictureBio = coach.Bio;
+            playersTeamsCoachesReqResId.PlayersTeamsCoachesReqRes = playersTeamsCoachesReqRes;
+
             responseMessage = await _logic.GetPostHttpClientAsync(
-                RequestMethods.POST,
+                RequestMethods.PUT,
                 true,
                 false,
                 "api/Users/edit_coach",
-                coach,
+                playersTeamsCoachesReqResId,
                 token);
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -197,7 +212,7 @@ namespace eTournament.Controllers
                 response = JsonConvert.DeserializeObject<ReturnString>(result);
             }
 
-            return View(coach);
+            return RedirectToAction(nameof(Index));
         }
 
         //GET: Coaches/delete/1
@@ -242,13 +257,22 @@ namespace eTournament.Controllers
         {
             var requestId = new RequestIdModel();
             var response = new ReturnString();
+            var username = HttpContext.Session.GetString("Username");
+            var role = HttpContext.Session.GetString("Role");
+
+            TempData["Username"] = username;
+            TempData["Role"] = role;
             requestId.RequestId = id;
+
+            var token = HttpContext.Session.GetString("Token");
+
             responseMessage = await _logic.GetPostHttpClientAsync(
                 RequestMethods.POST,
                 true,
                 false,
                 "api/Users/delete_coach",
-                requestId);
+                requestId,
+                token);
 
             if (responseMessage.IsSuccessStatusCode)
             {
